@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  ChevronsUpDown,
-  Command,
-  Headset,
-  MessageSquareText,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Search,
-  Settings,
-} from "lucide-react";
+import { ChevronsUpDown, Command, Headset, MessageSquareText, PanelLeft, Search, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -130,11 +121,10 @@ function SidebarUserItem() {
   );
 }
 
-/** Collapse toggle in the sidebar header: compact bordered panel-collapse icon. */
+/** Collapse toggle in the sidebar header: compact bordered panel icon. */
 function SidebarCollapseButton() {
-  const { state, toggleSidebar, isMobile } = useSidebar();
+  const { toggleSidebar, isMobile } = useSidebar();
   if (isMobile) return null;
-  const collapsed = state === "collapsed";
 
   return (
     <Tooltip>
@@ -145,7 +135,7 @@ function SidebarCollapseButton() {
           onClick={toggleSidebar}
           className="size-7 shrink-0 border text-muted-foreground"
         >
-          {collapsed ? <PanelLeftOpen className="size-3.5" /> : <PanelLeftClose className="size-3.5" />}
+          <PanelLeft />
           <span className="sr-only">Toggle sidebar</span>
         </Button>
       </TooltipTrigger>
