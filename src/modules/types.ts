@@ -22,9 +22,14 @@ export interface ModuleManifest {
    */
   shortcut?: string;
   /** Sidebar section the module belongs to. Groups are the nav hierarchy. */
-  group: "workspace" | "operations";
+  group: "workspace" | "operations" | "insights";
   /** One-line description shown in the command palette. */
   description?: string;
+  /**
+   * "coming-soon" modules appear in nav (dimmed, non-navigable) to show the
+   * planned surface area but register no routes. Defaults to "available".
+   */
+  status?: "available" | "coming-soon";
 }
 
 export type ModuleGroup = ModuleManifest["group"];

@@ -1,5 +1,9 @@
+import { complianceManifest } from "@/modules/compliance/manifest";
+import { contractorsManifest } from "@/modules/contractors/manifest";
 import { dashboardManifest } from "@/modules/dashboard/manifest";
 import { invoicesManifest } from "@/modules/invoices/manifest";
+import { payoutsManifest } from "@/modules/payouts/manifest";
+import { reportsManifest } from "@/modules/reports/manifest";
 import type { ModuleGroup, ModuleManifest } from "@/modules/types";
 
 /**
@@ -10,13 +14,21 @@ import type { ModuleGroup, ModuleManifest } from "@/modules/types";
  * palette, and shortcuts pick it up automatically. See README "How to add a
  * new module".
  */
-export const modules: ModuleManifest[] = [dashboardManifest, invoicesManifest];
+export const modules: ModuleManifest[] = [
+  dashboardManifest,
+  contractorsManifest,
+  invoicesManifest,
+  payoutsManifest,
+  complianceManifest,
+  reportsManifest,
+];
 
-const GROUP_ORDER: ModuleGroup[] = ["workspace", "operations"];
+const GROUP_ORDER: ModuleGroup[] = ["workspace", "operations", "insights"];
 
 export const GROUP_LABELS: Record<ModuleGroup, string> = {
   workspace: "Workspace",
   operations: "Operations",
+  insights: "Insights",
 };
 
 /** Modules bucketed by sidebar group, in display order. Empty groups are omitted. */

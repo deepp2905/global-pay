@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { SendHorizontal, Sparkles, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,21 @@ function ChatPanelBody() {
 export function ChatPanel() {
   const { open, setOpen } = useChatPanel();
   const isMobile = useIsMobile();
+  const closeButtonRef = React.useRef<HTMLButtonElement>(null);
+  const prevOpenRef = React.useRef(open);
+
+  // The header pill unmounts while the panel is open, so hand focus to the
+  // panel's close button on open and back to the pill on close. Skipped on
+  // mount so a cookie-restored open panel doesn't steal focus.
+  React.useEffect(() => {
+    if (prevOpenRef.current === open) return;
+    prevOpenRef.current = open;
+    if (open) {
+      closeButtonRef.current?.focus();
+    } else {
+      document.getElementById("ai-assistant-trigger")?.focus();
+    }
+  }, [open]);
 
   if (isMobile) {
     return (
@@ -79,7 +95,7 @@ export function ChatPanel() {
         <div className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <Sparkles className="size-4" />
           <span className="text-sm font-medium">AI Assistant</span>
-          <Button variant="ghost" size="icon" className="ml-auto" onClick={() => setOpen(false)}>
+          <Button ref={closeButtonRef} variant="ghost" size="icon" className="ml-auto" onClick={() => setOpen(false)}>
             <X />
             <span className="sr-only">Close AI assistant</span>
           </Button>

@@ -1,24 +1,72 @@
 "use client";
 
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { getModuleGroups } from "@/modules";
+import type { ModuleManifest } from "@/modules";
 
 function isActiveRoute(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function ModuleNavItem({ module, active }: { module: ModuleManifest; active: boolean }) {
+  if (module.status === "coming-soon") {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton aria-disabled tooltip={`${module.label} — coming soon`} className="opacity-60">
+          <module.icon />
+          <span>{module.label}</span>
+        </SidebarMenuButton>
+        <SidebarMenuBadge className="text-xs text-muted-foreground">Soon</SidebarMenuBadge>
+      </SidebarMenuItem>
+    );
+  }
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild isActive={active} tooltip={module.label}>
+        <Link href={module.href} aria-current={active ? "page" : undefined}>
+          <module.icon />
+          <span>{module.label}</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
+
+/** Collapse control lives inside the sidebar; hidden in the mobile sheet. */
+function SidebarCollapseItem() {
+  const { state, toggleSidebar, isMobile } = useSidebar();
+  if (isMobile) return null;
+  const collapsed = state === "collapsed";
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton onClick={toggleSidebar} tooltip="Expand sidebar (Ctrl+B)">
+          {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
+          <span>Collapse</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
 }
 
 /**
@@ -54,24 +102,17 @@ export function AppSidebar() {
             <SidebarGroupLabel>{label}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {modules.map((module) => {
-                  const active = isActiveRoute(pathname, module.href);
-                  return (
-                    <SidebarMenuItem key={module.id}>
-                      <SidebarMenuButton asChild isActive={active} tooltip={module.label}>
-                        <Link href={module.href} aria-current={active ? "page" : undefined}>
-                          <module.icon />
-                          <span>{module.label}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
+                {modules.map((module) => (
+                  <ModuleNavItem key={module.id} module={module} active={isActiveRoute(pathname, module.href)} />
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarCollapseItem />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
