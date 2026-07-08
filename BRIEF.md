@@ -71,4 +71,4 @@ AI tools are welcome. The model can't one-shot layout, hierarchy, naming, or arc
 
 ---
 
-*GOOD LUCK! — THE INSTALILY TEAM*
+_GOOD LUCK! — THE INSTALILY TEAM_

@@ -21,6 +21,7 @@ Knowledge transfer for all foundation decisions: what was chosen, what was consi
 **Decision:** Left sidebar, collapsible, with group labels (e.g., "Workspace" / "Operations") to show structural hierarchy.
 
 **Rejected:**
+
 - **Top nav** — doesn't scale past ~5–6 modules; the brief explicitly asks for scaling past three with hierarchy.
 - **Icon-only rail as the primary nav** — hides labels, hurts learnability for daily enterprise users who need speed and clarity.
 
@@ -45,7 +46,8 @@ Knowledge transfer for all foundation decisions: what was chosen, what was consi
 **Decision:** On the detail page, a back-arrow link labeled with the **parent's name** ("← Invoices"), then the page title (invoice ID). Stripe's detail-page pattern. The crumb is a real link to the list route.
 
 **Rejected:**
-- **Breadcrumbs + a separate back button** — redundant; the parent crumb *is* the back affordance.
+
+- **Breadcrumbs + a separate back button** — redundant; the parent crumb _is_ the back affordance.
 - **Labeling the link "Back"** — ambiguous between browser history and hierarchy. If the user deep-linked into the detail page, "Back" lies about its destination.
 
 **Rationale:** Breadcrumbs express hierarchy; the browser back button expresses history; the in-app affordance should always be hierarchical and name its destination (NN/g convention). One primitive covers "know where they are and how to get back."
@@ -57,6 +59,7 @@ Knowledge transfer for all foundation decisions: what was chosen, what was consi
 **Decision:** Hide low-priority columns responsively (`hidden md:table-cell`), keeping roughly contractor, amount, status on the smallest screens. Which columns survive is itself a documented information-priority decision.
 
 **Rejected:**
+
 - **Horizontal scroll** — the lazy answer; reads that way in review.
 - **Row-to-card transformation** — looks nicer but costs a second rendering path; not worth it under the deadline.
 
@@ -70,7 +73,7 @@ Knowledge transfer for all foundation decisions: what was chosen, what was consi
 
 **Decision:** Adding module four means: create `modules/settings/` with a `manifest.ts` and a route folder, plus **one line** in `modules/index.ts`. Zero edits to shell/layout components.
 
-**Convention documented in README:** Explicitly define what counts as the shell (frozen) vs. the extension surface (registry + module folders). A one-line registry entry does *not* count as "touching top-level code."
+**Convention documented in README:** Explicitly define what counts as the shell (frozen) vs. the extension surface (registry + module folders). A one-line registry entry does _not_ count as "touching top-level code."
 
 **Rationale:** The brief's fourth-module test is ambiguous about the boundary; turning that ambiguity into a documented convention is exactly the first-design-engineer move. The registry is the single sanctioned extension point: nav item, route mounting, and module metadata all derive from the manifest.
 
@@ -89,6 +92,7 @@ Knowledge transfer for all foundation decisions: what was chosen, what was consi
 **Decision:** Two static prior exchanges (so the panel looks inhabited in screenshots) + a three-dot pulse "thinking" indicator + staged reveal of a canned response (CSS transition or simple interval appending sentences).
 
 **Rejected:**
+
 - **Empty gray rectangle / bare composer** — wastes the most photogenic region of the app.
 - **Per-token streaming simulation** — animation polish here can quietly consume an hour; staged sentence reveal reads the same at a fraction of the cost.
 
