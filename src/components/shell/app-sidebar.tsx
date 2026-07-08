@@ -1,9 +1,20 @@
 "use client";
 
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import {
+  ChevronsUpDown,
+  Command,
+  Headset,
+  MessageSquareText,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Search,
+  Settings,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import {
   Sidebar,
   SidebarContent,
@@ -51,6 +62,72 @@ function ModuleNavItem({ module, active }: { module: ModuleManifest; active: boo
   );
 }
 
+/** Search affordance styled as an input. UI only — will open the command palette later. */
+function SidebarSearchItem() {
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton tooltip="Search" className="border bg-background text-muted-foreground shadow-xs">
+        <Search />
+        <span>Search anything</span>
+        <KbdGroup className="ml-auto group-data-[collapsible=icon]:hidden">
+          <Kbd>
+            <Command aria-label="Cmd" />
+          </Kbd>
+          <Kbd>K</Kbd>
+        </KbdGroup>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
+
+const supportItems = [
+  { label: "Feedback", icon: MessageSquareText },
+  { label: "Help & Support", icon: Headset },
+  { label: "Settings", icon: Settings },
+];
+
+/** Static support links pinned below the module nav. UI only for now. */
+function SidebarSupportGroup() {
+  return (
+    <SidebarGroup className="mt-auto">
+      <SidebarGroupLabel>Support</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {supportItems.map((item) => (
+            <SidebarMenuItem key={item.label}>
+              <SidebarMenuButton tooltip={item.label}>
+                <item.icon />
+                <span>{item.label}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
+/** Signed-in account card. UI only — no account menu yet. */
+function SidebarUserItem() {
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton size="lg" tooltip="Account" className="border bg-background shadow-xs">
+          <Avatar>
+            <AvatarFallback>DP</AvatarFallback>
+            <AvatarBadge className="bg-emerald-500" aria-label="Online" />
+          </Avatar>
+          <div className="grid flex-1 text-left leading-tight">
+            <span className="truncate font-medium">Deep Patel</span>
+            <span className="truncate text-xs text-muted-foreground">deephemapatel@gmail.com</span>
+          </div>
+          <ChevronsUpDown className="text-muted-foreground" />
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+}
+
 /** Collapse control lives inside the sidebar; hidden in the mobile sheet. */
 function SidebarCollapseItem() {
   const { state, toggleSidebar, isMobile } = useSidebar();
@@ -70,8 +147,9 @@ function SidebarCollapseItem() {
 }
 
 /**
- * Global navigation. Renders entirely from the module registry — this file
- * never names a specific module (see modules/index.ts).
+ * Global navigation. The module nav renders entirely from the registry — this
+ * file never names a specific module (see modules/index.ts). Search, support
+ * links, and the account card are static shell affordances, not modules.
  */
 export function AppSidebar() {
   const pathname = usePathname();
@@ -94,6 +172,7 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarSearchItem />
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
@@ -109,9 +188,11 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+        <SidebarSupportGroup />
       </SidebarContent>
       <SidebarFooter>
         <SidebarCollapseItem />
+        <SidebarUserItem />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
