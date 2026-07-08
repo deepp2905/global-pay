@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -53,10 +53,11 @@ function ModuleNavItem({ module, active }: { module: ModuleManifest; active: boo
   );
 }
 
-/** Collapse toggle in the sidebar header (reference: compact chevron button). */
+/** Collapse toggle in the sidebar header: compact bordered panel-collapse icon. */
 function SidebarCollapseButton() {
-  const { toggleSidebar, isMobile } = useSidebar();
+  const { state, toggleSidebar, isMobile } = useSidebar();
   if (isMobile) return null;
+  const collapsed = state === "collapsed";
 
   return (
     <Tooltip>
@@ -67,7 +68,7 @@ function SidebarCollapseButton() {
           onClick={toggleSidebar}
           className="size-7 shrink-0 border text-muted-foreground"
         >
-          <ChevronsUpDown className="size-3.5" />
+          {collapsed ? <PanelLeftOpen className="size-3.5" /> : <PanelLeftClose className="size-3.5" />}
           <span className="sr-only">Toggle sidebar</span>
         </Button>
       </TooltipTrigger>
