@@ -14,6 +14,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import {
   Sidebar,
@@ -30,6 +31,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getModuleGroups } from "@/modules";
 import type { ModuleManifest } from "@/modules";
 
@@ -128,21 +130,32 @@ function SidebarUserItem() {
   );
 }
 
-/** Collapse control lives inside the sidebar; hidden in the mobile sheet. */
-function SidebarCollapseItem() {
+/** Collapse toggle in the sidebar header: compact bordered panel-collapse icon. */
+function SidebarCollapseButton() {
   const { state, toggleSidebar, isMobile } = useSidebar();
   if (isMobile) return null;
   const collapsed = state === "collapsed";
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <SidebarMenuButton onClick={toggleSidebar} tooltip="Expand sidebar (Ctrl+B)">
-          {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
-          <span>Collapse</span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    </SidebarMenu>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="size-7 shrink-0 border text-muted-foreground"
+        >
+          {collapsed ? <PanelLeftOpen className="size-3.5" /> : <PanelLeftClose className="size-3.5" />}
+          <span className="sr-only">Toggle sidebar</span>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="right">
+        <KbdGroup>
+          <Kbd>Ctrl</Kbd>
+          <Kbd>B</Kbd>
+        </KbdGroup>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -158,20 +171,25 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
+        <div className="flex items-center gap-1 group-data-[collapsible=icon]:flex-col">
+          <SidebarMenu className="min-w-0 flex-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild tooltip="Global Pay">
+                <Link href="/dashboard">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
+                    G
+                  </div>
+                  <div className="flex flex-col gap-0.5 leading-none">
+                    <span className="font-semibold">Global Pay</span>
+                    <span className="text-xs text-muted-foreground">Payments workspace</span>
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <SidebarCollapseButton />
+        </div>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild tooltip="Global Pay">
-              <Link href="/dashboard">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
-                  G
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Global Pay</span>
-                  <span className="text-xs text-muted-foreground">Payments workspace</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarSearchItem />
         </SidebarMenu>
       </SidebarHeader>
@@ -191,7 +209,6 @@ export function AppSidebar() {
         <SidebarSupportGroup />
       </SidebarContent>
       <SidebarFooter>
-        <SidebarCollapseItem />
         <SidebarUserItem />
       </SidebarFooter>
       <SidebarRail />
