@@ -1,13 +1,14 @@
 "use client";
 
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -19,6 +20,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getModuleGroups } from "@/modules";
 import type { ModuleManifest } from "@/modules";
 
@@ -51,21 +53,31 @@ function ModuleNavItem({ module, active }: { module: ModuleManifest; active: boo
   );
 }
 
-/** Collapse control lives inside the sidebar; hidden in the mobile sheet. */
-function SidebarCollapseItem() {
-  const { state, toggleSidebar, isMobile } = useSidebar();
+/** Collapse toggle in the sidebar header (reference: compact chevron button). */
+function SidebarCollapseButton() {
+  const { toggleSidebar, isMobile } = useSidebar();
   if (isMobile) return null;
-  const collapsed = state === "collapsed";
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <SidebarMenuButton onClick={toggleSidebar} tooltip="Expand sidebar (Ctrl+B)">
-          {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
-          <span>Collapse</span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    </SidebarMenu>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="size-7 shrink-0 border text-muted-foreground"
+        >
+          <ChevronsUpDown className="size-3.5" />
+          <span className="sr-only">Toggle sidebar</span>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="right">
+        <KbdGroup>
+          <Kbd>Ctrl</Kbd>
+          <Kbd>B</Kbd>
+        </KbdGroup>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -80,21 +92,24 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild tooltip="Global Pay">
-              <Link href="/dashboard">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
-                  G
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Global Pay</span>
-                  <span className="text-xs text-muted-foreground">Payments workspace</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex items-center gap-1 group-data-[collapsible=icon]:flex-col">
+          <SidebarMenu className="min-w-0 flex-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild tooltip="Global Pay">
+                <Link href="/dashboard">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
+                    G
+                  </div>
+                  <div className="flex flex-col gap-0.5 leading-none">
+                    <span className="font-semibold">Global Pay</span>
+                    <span className="text-xs text-muted-foreground">Payments workspace</span>
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <SidebarCollapseButton />
+        </div>
       </SidebarHeader>
       <SidebarContent>
         {groups.map(({ group, label, modules }) => (
@@ -110,9 +125,6 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter>
-        <SidebarCollapseItem />
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
