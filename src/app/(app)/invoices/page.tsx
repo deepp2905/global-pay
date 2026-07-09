@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 
+import { PageHeader } from "@/components/shell/page-header";
+import { InvoicesTable } from "@/modules/invoices/components/invoices-table";
+import { invoicesManifest } from "@/modules/invoices/manifest";
+
 export const metadata: Metadata = {
   title: "Invoices",
 };
 
 export default function InvoicesPage() {
   return (
-    <div className="p-8">
-      <h1 className="text-lg font-semibold">Invoices</h1>
-      <p className="text-sm text-muted-foreground">Placeholder — the invoice table lands in Phase 3.</p>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-8">
+      <PageHeader title={invoicesManifest.label} description={invoicesManifest.description} />
+      <InvoicesTable />
     </div>
   );
 }
