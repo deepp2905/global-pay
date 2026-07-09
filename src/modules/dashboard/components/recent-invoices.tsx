@@ -15,7 +15,7 @@ export function RecentInvoices() {
   const recent = [...invoices].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6);
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-3 pt-2">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold">Recent invoices</h2>
         <Link href="/invoices" className="text-sm font-medium text-primary hover:underline">
