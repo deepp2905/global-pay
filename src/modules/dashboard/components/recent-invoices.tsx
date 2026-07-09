@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "@/modules/invoices/components/status-badge";
 import { invoices } from "@/modules/invoices/data";
@@ -16,14 +15,14 @@ export function RecentInvoices() {
   const recent = [...invoices].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6);
 
   return (
-    <Card className="gap-3">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-base">Recent invoices</CardTitle>
+    <section className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold">Recent invoices</h2>
         <Link href="/invoices" className="text-sm font-medium text-primary hover:underline">
           View all
         </Link>
-      </CardHeader>
-      <CardContent className="px-2">
+      </div>
+      <div className="overflow-hidden rounded-xl border bg-card">
         <Table>
           <caption className="sr-only">Six most recent invoices</caption>
           <TableHeader>
@@ -60,7 +59,7 @@ export function RecentInvoices() {
             ))}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

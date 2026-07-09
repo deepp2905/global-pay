@@ -30,6 +30,16 @@ const CURRENCIES = ["USD", "EUR", "GBP", "INR", "SGD", "AED"];
 export function PayoutDialog({ defaultOpen = false }: { defaultOpen?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = React.useState(defaultOpen);
+  const [prevDefaultOpen, setPrevDefaultOpen] = React.useState(defaultOpen);
+
+  // The palette quick action navigates to ?action=new-payout, flipping this
+  // prop on the server render. useState only reads its initial value, so open
+  // on the rising edge (incl. while already on /invoices). Adjusting state
+  // during render is React's recommended pattern here — no effect needed.
+  if (defaultOpen !== prevDefaultOpen) {
+    setPrevDefaultOpen(defaultOpen);
+    if (defaultOpen) setOpen(true);
+  }
 
   function handleOpenChange(next: boolean) {
     setOpen(next);

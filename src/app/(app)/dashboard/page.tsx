@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CircleCheck, Clock4, TrendingUp, Users } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/shell/page-header";
 import { RecentInvoices } from "@/modules/dashboard/components/recent-invoices";
 import { dashboardManifest } from "@/modules/dashboard/manifest";
@@ -23,27 +23,23 @@ function getStats() {
   const pendingCount = invoices.filter((i) => i.status === "pending").length;
   return [
     {
-      label: "Outstanding",
       value: formatCurrency(outstanding, "USD"),
-      caption: "Pending + processing, USD settlement",
+      label: "Outstanding · USD settlement",
       icon: TrendingUp,
     },
     {
-      label: "Paid, last 30 days",
       value: formatCurrency(paidLast30, "USD"),
-      caption: "Completed payouts",
+      label: "Paid · last 30 days",
       icon: CircleCheck,
     },
     {
-      label: "Awaiting approval",
       value: String(pendingCount),
-      caption: "Invoices in pending state",
+      label: "Invoices awaiting approval",
       icon: Clock4,
     },
     {
-      label: "Active contractors",
       value: String(getContractors().length),
-      caption: "Across all corridors",
+      label: "Active contractors",
       icon: Users,
     },
   ];
@@ -55,14 +51,15 @@ export default function DashboardPage() {
       <PageHeader title={dashboardManifest.label} description="Cross-border payout activity at a glance" />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {getStats().map((stat) => (
-          <Card key={stat.label} className="gap-2">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.label}</CardTitle>
-              <stat.icon className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-semibold tracking-tight tabular-nums">{stat.value}</p>
-              <p className="text-sm text-muted-foreground">{stat.caption}</p>
+          <Card key={stat.label} className="border ring-0">
+            <CardContent className="flex items-center gap-4">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border bg-muted/40 text-muted-foreground">
+                <stat.icon className="size-5" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-2xl font-semibold tracking-tight tabular-nums">{stat.value}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+              </div>
             </CardContent>
           </Card>
         ))}
