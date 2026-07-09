@@ -52,7 +52,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {getStats().map((stat) => (
           <Card key={stat.label} className="rounded-xl border ring-0">
-            <CardContent className="flex flex-col gap-3">
+            <CardContent className="flex flex-col gap-4">
               <stat.icon className="size-5 text-primary" />
               <div className="flex flex-col gap-1">
                 <p className="text-2xl font-semibold tracking-tight tabular-nums">{stat.value}</p>
