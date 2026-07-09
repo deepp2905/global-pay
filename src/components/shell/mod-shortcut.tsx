@@ -14,10 +14,11 @@ import { cn } from "@/lib/utils";
 export function ModShortcut({ keyLabel, className }: { keyLabel: string; className?: string }) {
   const isMac = useIsMac();
   return (
+    // Fill-less keys don't need keycap width/padding — keep them tight.
     <span className={cn("inline-flex items-center gap-0.5", className)}>
-      <Kbd>{isMac ? <Command aria-label="Command" /> : "Ctrl"}</Kbd>
+      <Kbd className="h-auto min-w-0 px-0">{isMac ? <Command aria-label="Command" /> : "Ctrl"}</Kbd>
       <span aria-hidden>+</span>
-      <Kbd>{keyLabel}</Kbd>
+      <Kbd className="h-auto min-w-0 px-0">{keyLabel}</Kbd>
     </span>
   );
 }
