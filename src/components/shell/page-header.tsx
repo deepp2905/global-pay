@@ -13,11 +13,12 @@ export function PageHeader({
   back,
   actions,
 }: {
-  title: React.ReactNode;
+  title?: React.ReactNode;
   description?: string;
   back?: { href: string; label: string };
   actions?: React.ReactNode;
 }) {
+  const hasTitleBlock = title != null || description != null || actions != null;
   return (
     // gap-2 sets the back link apart from the title; the title/description
     // group keeps a tight gap-1 so the caption stays bound to the title.
@@ -31,13 +32,15 @@ export function PageHeader({
           {back.label}
         </Link>
       )}
-      <div className="flex flex-col gap-1">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
-          {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {hasTitleBlock && (
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {title != null && <h1 className="text-xl font-semibold tracking-tight">{title}</h1>}
+            {actions && <div className="flex items-center gap-2">{actions}</div>}
+          </div>
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </div>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
-      </div>
+      )}
     </div>
   );
 }

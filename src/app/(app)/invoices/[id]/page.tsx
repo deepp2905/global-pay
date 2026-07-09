@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CircleCheck, Clock4, FileText, TriangleAlert } from "lucide-react";
+import { CalendarDays, CircleCheck, Clock4, FileText, TriangleAlert } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/shell/page-header";
-import { GenerateInvoiceButton } from "@/modules/invoices/components/generate-invoice-button";
+import { InvoiceActions } from "@/modules/invoices/components/invoice-actions";
 import { MethodLabel } from "@/modules/invoices/components/method-label";
-import { StatusBadge } from "@/modules/invoices/components/status-badge";
-import { getInvoice, METHOD_LABELS, type Invoice } from "@/modules/invoices/data";
+import { getInvoice, METHOD_LABELS, STATUS_LABELS, type Invoice } from "@/modules/invoices/data";
 import { cn, formatCurrency, formatDate, getInitials } from "@/lib/utils";
 
 type InvoiceDetailProps = { params: Promise<{ id: string }> };
@@ -92,31 +91,27 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-8">
-      <PageHeader
-        back={{ href: "/invoices", label: "Invoices" }}
-        title={
-          <span className="flex items-center gap-3">
-            {invoice.id}
-            <StatusBadge status={invoice.status} />
-          </span>
-        }
-        description={`Issued ${formatDate(invoice.date, "long")}`}
-      />
+      <PageHeader back={{ href: "/invoices", label: "Invoices" }} />
 
       {/* Who was paid, and how much — the first things to confirm post-payout. */}
       <Card className={cardCls}>
         <CardContent className="flex flex-col gap-5">
-          <div className="flex items-center gap-4">
-            <Avatar className="size-12">
-              <AvatarFallback>{getInitials(invoice.contractor)}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col gap-1">
-              <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Avatar className="size-12">
+                <AvatarFallback>{getInitials(invoice.contractor)}</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col gap-1">
                 <span className="text-lg leading-none font-semibold">{invoice.contractor}</span>
-                <Badge variant="secondary">{invoice.title}</Badge>
+                <span className="text-sm text-muted-foreground">
+                  {invoice.title} · {invoice.country}
+                </span>
               </div>
-              <span className="text-sm text-muted-foreground">Contractor · {invoice.country}</span>
             </div>
+            <Badge variant="secondary" className="gap-1.5">
+              <CalendarDays />
+              Issued {formatDate(invoice.date, "long")}
+            </Badge>
           </div>
           <Separator />
           <div className="flex flex-col gap-1">
@@ -185,9 +180,23 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
-        <GenerateInvoiceButton />
-      </div>
+      <InvoiceActions
+        status={invoice.status}
+        usdLabel={formatCurrency(invoice.usdValue, "USD")}
+        pdf={{
+          id: invoice.id,
+          status: STATUS_LABELS[invoice.status],
+          contractor: invoice.contractor,
+          role: invoice.title,
+          destination: invoice.country,
+          amount: `${invoice.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 8 })} ${invoice.currency}`,
+          settlement: formatCurrency(invoice.usdValue, "USD"),
+          method: METHOD_LABELS[invoice.method],
+          issued: formatDate(invoice.date, "long"),
+          due: invoice.dueDate ? formatDate(invoice.dueDate, "long") : "-",
+          reference: invoice.id.replace("INV", "SET"),
+        }}
+      />
     </div>
   );
 }
