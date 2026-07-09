@@ -8,7 +8,10 @@ import { PageHeader } from "@/components/shell/page-header";
 import { MethodLabel } from "@/modules/invoices/components/method-label";
 import { StatusBadge } from "@/modules/invoices/components/status-badge";
 import { getInvoice, METHOD_LABELS, type Invoice } from "@/modules/invoices/data";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { cn, formatCurrency, formatDate } from "@/lib/utils";
+
+const cardCls = "rounded-xl border ring-0";
+const eyebrowCls = "text-xs font-medium text-muted-foreground uppercase";
 
 type InvoiceDetailProps = { params: Promise<{ id: string }> };
 
@@ -60,11 +63,9 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Amount</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className={cardCls}>
+          <CardContent className="flex flex-col gap-1">
+            <span className={eyebrowCls}>Amount</span>
             <p className="text-2xl font-semibold tracking-tight tabular-nums">
               {formatCurrency(invoice.amount, invoice.currency)}
             </p>
@@ -73,22 +74,18 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Payment</CardTitle>
-          </CardHeader>
+        <Card className={cardCls}>
           <CardContent className="flex flex-col gap-1">
+            <span className={eyebrowCls}>Payment</span>
             <MethodLabel method={invoice.method} />
             <p className="text-sm text-muted-foreground">
               {invoice.currency} → {invoice.country}
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Dates</CardTitle>
-          </CardHeader>
+        <Card className={cardCls}>
           <CardContent className="flex flex-col gap-1 text-sm">
+            <span className={eyebrowCls}>Dates</span>
             <p>
               Issued <span className="text-muted-foreground">{formatDate(invoice.date, "long")}</span>
             </p>
@@ -102,8 +99,8 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-5">
-        <Card className="lg:col-span-3">
+      <div className="grid gap-4 pt-2 lg:grid-cols-5">
+        <Card className={cn(cardCls, "lg:col-span-3")}>
           <CardHeader>
             <CardTitle className="text-base">Invoice details</CardTitle>
           </CardHeader>
@@ -111,18 +108,18 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
             <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
               {fields.map(([label, value]) => (
                 <div key={label} className="flex flex-col gap-0.5">
-                  <dt className="text-xs font-medium text-muted-foreground uppercase">{label}</dt>
+                  <dt className={eyebrowCls}>{label}</dt>
                   <dd className="text-sm">{value}</dd>
                 </div>
               ))}
             </dl>
           </CardContent>
         </Card>
-        <Card className="lg:col-span-2">
+        <Card className={cn(cardCls, "lg:col-span-2")}>
           <CardHeader>
             <CardTitle className="text-base">Activity</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col gap-4">
             <ol className="flex flex-col">
               {getActivity(invoice).map((event, index, list) => (
                 <li key={event.label} className="flex gap-3">
@@ -130,17 +127,17 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
                     <event.icon className="size-4 shrink-0 text-muted-foreground" />
                     {index < list.length - 1 && <Separator orientation="vertical" className="my-1 flex-1" />}
                   </div>
-                  <div className="flex flex-col gap-0.5 pb-5">
+                  <div className={cn("flex flex-col gap-0.5", index < list.length - 1 && "pb-5")}>
                     <p className="text-sm leading-none font-medium">{event.label}</p>
                     <p className="text-sm text-muted-foreground">{formatDate(event.date, "long")}</p>
                   </div>
                 </li>
               ))}
             </ol>
-            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 border-t pt-4 text-sm text-muted-foreground">
               <CircleDollarSign className="size-4" />
               Settlement reference {invoice.id.replace("INV", "SET")}
-            </p>
+            </div>
           </CardContent>
         </Card>
       </div>
