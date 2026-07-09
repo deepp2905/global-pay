@@ -127,12 +127,21 @@ shadcn/ui components are vendored into `src/components/ui/` (add more with `npx 
 
 ## Status
 
-| Done                                                                                                                                                                                    | Pending                                                     |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Shell: registry-driven sidebar (grouped, collapsible, coming-soon modules), header, foldable AI panel (hybrid, ⌘J, cookie-persisted)                                                    | Command palette (⌘K) + full keyboard audit                  |
-| Module registry + contract, 3 live modules: Dashboard (stats + recent activity), Invoices (tabs, search, sort, selection, pagination), Invoice detail (summary, fields, activity trail) | Chat stub polish (transcript, thinking state, staged reply) |
-| Wayfinding: PageHeader + named-parent back link                                                                                                                                         | "New Payout" dialog                                         |
-| Design tokens incl. status colors; Motion animation standard; mobile column pruning                                                                                                     | Dark mode toggle (tokens already dark-ready)                |
+**Done**
+
+- **Shell** — registry-driven sidebar (grouped sections, icon-rail collapse, `coming-soon` modules, search, support links, account card); header with the AI pill; foldable AI panel (responsive hybrid, cookie-persisted, sequenced pill/panel choreography).
+- **Module registry + contract**, and 3 live modules: **Dashboard** (stat cards + recent-invoices table), **Invoices** (status tabs, contractor search, sortable date, row selection, client pagination, column pruning), **Invoice detail** (summary cards, field grid, activity trail).
+- **Wayfinding** — shared `PageHeader` with the named-parent back link.
+- **Command palette (⌘/Ctrl+K)** — Quick actions / Recents / Actions, registry-derived, with a keycap footer. Three global shortcuts (`+K` palette, `+J` panel, `+B` sidebar), platform-correct modifier hints (`ModKbd`).
+- **"New Payout" dialog** — from the list header CTA or the palette quick action (`?action=new-payout`).
+- **Design system** — tokens incl. status + brand-blue focus ring; Motion animation standard with `prefers-reduced-motion`; flat cards; `cursor: pointer` on interactive elements.
+- **Mobile** — sidebar drawer, chat sheet, table column pruning; verified at 375px.
+
+**Pending**
+
+- Chat stub polish (inhabited transcript, thinking pulse, staged reply reveal).
+- Dark-mode toggle (`next-themes`; token layer is already dark-ready).
+- README add-a-module rehearsal (build a hidden 4th module to verify the steps).
 
 Deployed on Vercel — every push to `master` goes live.
 
