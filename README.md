@@ -36,7 +36,7 @@ src/
   lib/utils.ts            ← cn(), formatCurrency, formatDate, getInitials
 ```
 
-**The one rule:** the *shell* is frozen; the *registry* is the extension point. The sidebar, command palette, and keyboard shortcuts all derive from `modules/index.ts` — nothing in `components/shell/` names a specific module. Adding a module never touches top-level code (a one-line registry entry doesn't count).
+**The one rule:** the _shell_ is frozen; the _registry_ is the extension point. The sidebar, command palette, and keyboard shortcuts all derive from `modules/index.ts` — nothing in `components/shell/` names a specific module. Adding a module never touches top-level code (a one-line registry entry doesn't count).
 
 Why this shape:
 
@@ -60,7 +60,7 @@ export const settingsManifest: ModuleManifest = {
   label: "Settings",
   icon: Settings,
   href: "/settings",
-  group: "workspace",          // "workspace" | "operations" | "insights"
+  group: "workspace", // "workspace" | "operations" | "insights"
   description: "Workspace configuration",
 };
 ```
@@ -89,7 +89,7 @@ export const modules: ModuleManifest[] = [
   contractorsManifest,
   invoicesManifest,
   // ...
-  settingsManifest,   // ← this
+  settingsManifest, // ← this
 ];
 ```
 
@@ -103,13 +103,13 @@ Deep views follow the wayfinding pattern: a nested route (`/invoices/[id]`) whos
 
 All color, radius, and font decisions live in `src/app/globals.css` as CSS variables, mapped into Tailwind by `@theme inline`. **Extend the shadcn set, never replace it** — e.g. status colors are added alongside `--destructive`:
 
-| Token | Role |
-| --- | --- |
-| `--primary` | Brand blue — actions, active nav, logo |
+| Token                                       | Role                                                                    |
+| ------------------------------------------- | ----------------------------------------------------------------------- |
+| `--primary`                                 | Brand blue — actions, active nav, logo                                  |
 | `--success` / `--warning` / `--destructive` | Payout states: paid / processing / failed (each with a dark-mode value) |
-| `--secondary`, `--muted` | Pending state, surfaces, captions |
-| `--sidebar-*` | Sidebar-scoped surface set (from shadcn) |
-| `--radius` | Single radius scale; components derive sm→4xl from it |
+| `--secondary`, `--muted`                    | Pending state, surfaces, captions                                       |
+| `--sidebar-*`                               | Sidebar-scoped surface set (from shadcn)                                |
+| `--radius`                                  | Single radius scale; components derive sm→4xl from it                   |
 
 Rules: no hardcoded hex in components — go through a token. Type scale: page titles `text-xl font-semibold tracking-tight`, card/section titles `text-base`/`text-sm font-medium`, captions `text-sm text-muted-foreground`. Numbers in tables and stats use `tabular-nums`.
 
@@ -127,15 +127,15 @@ shadcn/ui components are vendored into `src/components/ui/` (add more with `npx 
 
 ## Status
 
-| Done | Pending |
-| --- | --- |
-| Shell: registry-driven sidebar (grouped, collapsible, coming-soon modules), header, foldable AI panel (hybrid, ⌘J, cookie-persisted) | Command palette (⌘K) + full keyboard audit |
+| Done                                                                                                                                                                                    | Pending                                                     |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Shell: registry-driven sidebar (grouped, collapsible, coming-soon modules), header, foldable AI panel (hybrid, ⌘J, cookie-persisted)                                                    | Command palette (⌘K) + full keyboard audit                  |
 | Module registry + contract, 3 live modules: Dashboard (stats + recent activity), Invoices (tabs, search, sort, selection, pagination), Invoice detail (summary, fields, activity trail) | Chat stub polish (transcript, thinking state, staged reply) |
-| Wayfinding: PageHeader + named-parent back link | "New Payout" dialog |
-| Design tokens incl. status colors; Motion animation standard; mobile column pruning | Dark mode toggle (tokens already dark-ready) |
+| Wayfinding: PageHeader + named-parent back link                                                                                                                                         | "New Payout" dialog                                         |
+| Design tokens incl. status colors; Motion animation standard; mobile column pruning                                                                                                     | Dark mode toggle (tokens already dark-ready)                |
 
 Deployed on Vercel — every push to `master` goes live.
 
 ---
 
-*Case-study companion docs: `BRIEF.md` (original assignment) and `DECISIONS.md` (every architectural decision with rejected alternatives).*
+_Case-study companion docs: `BRIEF.md` (original assignment) and `DECISIONS.md` (every architectural decision with rejected alternatives)._

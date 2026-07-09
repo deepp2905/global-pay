@@ -23,6 +23,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useCommandPalette } from "@/hooks/use-command-palette";
 import { getModuleGroups } from "@/modules";
 import type { ModuleManifest } from "@/modules";
 
@@ -55,11 +56,16 @@ function ModuleNavItem({ module, active }: { module: ModuleManifest; active: boo
   );
 }
 
-/** Search affordance styled as an input. UI only — will open the command palette later. */
+/** Search affordance styled as an input; opens the command palette. */
 function SidebarSearchItem() {
+  const { setOpen } = useCommandPalette();
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton tooltip="Search" className="border bg-background text-muted-foreground shadow-xs">
+      <SidebarMenuButton
+        tooltip="Search"
+        onClick={() => setOpen(true)}
+        className="border bg-background text-muted-foreground shadow-xs"
+      >
         <Search />
         <span>Search anything</span>
         <KbdGroup className="ml-auto group-data-[collapsible=icon]:hidden">

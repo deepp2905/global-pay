@@ -30,6 +30,19 @@ export interface ModuleManifest {
    * planned surface area but register no routes. Defaults to "available".
    */
   status?: "available" | "coming-soon";
+  /**
+   * Module verbs surfaced in the command palette's "Quick actions" group.
+   * Href-based so the shell stays module-agnostic — the module's own route
+   * reads the param and opens the right surface.
+   */
+  quickActions?: ModuleQuickAction[];
+}
+
+export interface ModuleQuickAction {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  href: string;
 }
 
 export type ModuleGroup = ModuleManifest["group"];

@@ -3,7 +3,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppHeader } from "@/components/shell/app-header";
 import { AppSidebar } from "@/components/shell/app-sidebar";
 import { ChatPanel } from "@/components/shell/chat-panel";
+import { CommandPalette } from "@/components/shell/command-palette";
 import { ChatPanelProvider } from "@/hooks/use-chat-panel";
+import { CommandPaletteProvider } from "@/hooks/use-command-palette";
 
 /**
  * The top-level app frame: sidebar | header + main content | chat panel.
@@ -22,20 +24,23 @@ export function AppShell({
   return (
     <TooltipProvider>
       <ChatPanelProvider defaultOpen={chatDefaultOpen}>
-        <SidebarProvider defaultOpen={sidebarDefaultOpen}>
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:text-primary-foreground"
-          >
-            Skip to content
-          </a>
-          <AppSidebar />
-          <SidebarInset id="main-content" tabIndex={-1} className="min-w-0">
-            <AppHeader />
-            <div className="flex-1">{children}</div>
-          </SidebarInset>
-          <ChatPanel />
-        </SidebarProvider>
+        <CommandPaletteProvider>
+          <SidebarProvider defaultOpen={sidebarDefaultOpen}>
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:text-primary-foreground"
+            >
+              Skip to content
+            </a>
+            <AppSidebar />
+            <SidebarInset id="main-content" tabIndex={-1} className="min-w-0">
+              <AppHeader />
+              <div className="flex-1">{children}</div>
+            </SidebarInset>
+            <ChatPanel />
+            <CommandPalette />
+          </SidebarProvider>
+        </CommandPaletteProvider>
       </ChatPanelProvider>
     </TooltipProvider>
   );
