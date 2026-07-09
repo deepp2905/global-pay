@@ -4,6 +4,7 @@ import { CornerDownLeft, PanelLeft, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import {
+  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -57,56 +58,59 @@ export function CommandPalette() {
       title="Command palette"
       description="Jump to a module or run an action"
     >
-      <CommandInput placeholder="Search modules and actions…" />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Quick actions">
-          {quickActions.map((action) => (
-            <CommandItem key={action.id} value={action.label} onSelect={() => run(() => router.push(action.href))}>
-              <action.icon />
-              <span>{action.label}</span>
-              <Kbd className="ml-auto">
-                <CornerDownLeft aria-label="Enter" />
-              </Kbd>
-            </CommandItem>
-          ))}
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup heading="Recents">
-          {modules.map((module) => {
-            const soon = module.status === "coming-soon";
-            return (
-              <CommandItem
-                key={module.id}
-                value={`Go to ${module.label} ${module.description ?? ""}`}
-                disabled={soon}
-                onSelect={() => run(() => router.push(module.href))}
-              >
-                <module.icon />
-                <span>Go to {module.label}</span>
-                {soon ? (
-                  <span className="ml-auto text-xs text-muted-foreground">Soon</span>
-                ) : (
-                  module.shortcut && <ShortcutHint shortcut={module.shortcut} />
-                )}
+      {/* This style's CommandDialog doesn't provide the cmdk root itself. */}
+      <Command>
+        <CommandInput placeholder="Search modules and actions…" />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Quick actions">
+            {quickActions.map((action) => (
+              <CommandItem key={action.id} value={action.label} onSelect={() => run(() => router.push(action.href))}>
+                <action.icon />
+                <span>{action.label}</span>
+                <Kbd className="ml-auto">
+                  <CornerDownLeft aria-label="Enter" />
+                </Kbd>
               </CommandItem>
-            );
-          })}
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup heading="Actions">
-          <CommandItem value="Toggle AI assistant chat" onSelect={() => run(toggleChat)}>
-            <Sparkles />
-            <span>Toggle AI assistant</span>
-            <ShortcutHint shortcut="⌘ J" />
-          </CommandItem>
-          <CommandItem value="Toggle sidebar collapse" onSelect={() => run(toggleSidebar)}>
-            <PanelLeft />
-            <span>Toggle sidebar</span>
-            <ShortcutHint shortcut="Ctrl B" />
-          </CommandItem>
-        </CommandGroup>
-      </CommandList>
+            ))}
+          </CommandGroup>
+          <CommandSeparator />
+          <CommandGroup heading="Recents">
+            {modules.map((module) => {
+              const soon = module.status === "coming-soon";
+              return (
+                <CommandItem
+                  key={module.id}
+                  value={`Go to ${module.label} ${module.description ?? ""}`}
+                  disabled={soon}
+                  onSelect={() => run(() => router.push(module.href))}
+                >
+                  <module.icon />
+                  <span>Go to {module.label}</span>
+                  {soon ? (
+                    <span className="ml-auto text-xs text-muted-foreground">Soon</span>
+                  ) : (
+                    module.shortcut && <ShortcutHint shortcut={module.shortcut} />
+                  )}
+                </CommandItem>
+              );
+            })}
+          </CommandGroup>
+          <CommandSeparator />
+          <CommandGroup heading="Actions">
+            <CommandItem value="Toggle AI assistant chat" onSelect={() => run(toggleChat)}>
+              <Sparkles />
+              <span>Toggle AI assistant</span>
+              <ShortcutHint shortcut="⌘ J" />
+            </CommandItem>
+            <CommandItem value="Toggle sidebar collapse" onSelect={() => run(toggleSidebar)}>
+              <PanelLeft />
+              <span>Toggle sidebar</span>
+              <ShortcutHint shortcut="Ctrl B" />
+            </CommandItem>
+          </CommandGroup>
+        </CommandList>
+      </Command>
       <div className="flex items-center gap-4 border-t px-3 py-2 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           Select
