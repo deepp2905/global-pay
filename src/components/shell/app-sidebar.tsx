@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown, Command, Headset, MessageSquareText, PanelLeft, Search, Settings } from "lucide-react";
+import { ChevronsUpDown, Headset, MessageSquareText, PanelLeft, Search, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -23,6 +23,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ModKbd } from "@/components/shell/mod-kbd";
 import { useCommandPalette } from "@/hooks/use-command-palette";
 import { getModuleGroups } from "@/modules";
 import type { ModuleManifest } from "@/modules";
@@ -69,9 +70,7 @@ function SidebarSearchItem() {
         <Search />
         <span>Search anything</span>
         <KbdGroup className="ml-auto group-data-[collapsible=icon]:hidden">
-          <Kbd>
-            <Command aria-label="Cmd" />
-          </Kbd>
+          <ModKbd />
           <Kbd>K</Kbd>
         </KbdGroup>
       </SidebarMenuButton>
@@ -147,7 +146,7 @@ function SidebarCollapseButton() {
       </TooltipTrigger>
       <TooltipContent side="right">
         <KbdGroup>
-          <Kbd>Ctrl</Kbd>
+          <ModKbd />
           <Kbd>B</Kbd>
         </KbdGroup>
       </TooltipContent>

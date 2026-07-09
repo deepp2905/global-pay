@@ -10,9 +10,8 @@ import type { ModuleGroup, ModuleManifest } from "@/modules/types";
  * The module registry — the one place a new module is wired into the app.
  *
  * To add a module: create `modules/<name>/manifest.ts`, mount its route under
- * `app/(app)/<name>/`, and add the manifest here. The sidebar, command
- * palette, and shortcuts pick it up automatically. See README "How to add a
- * new module".
+ * `app/(app)/<name>/`, and add the manifest here. The sidebar and command
+ * palette pick it up automatically. See README "How to add a new module".
  */
 export const modules: ModuleManifest[] = [
   dashboardManifest,

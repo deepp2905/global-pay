@@ -7,7 +7,6 @@ export const dashboardManifest: ModuleManifest = {
   label: "Dashboard",
   icon: LayoutDashboard,
   href: "/dashboard",
-  shortcut: "G D",
   group: "workspace",
   description: "Payout activity at a glance",
 };

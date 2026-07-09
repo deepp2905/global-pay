@@ -1,6 +1,6 @@
 "use client";
 
-import { Command as CommandIcon, CornerDownLeft, PanelLeft, Sparkles } from "lucide-react";
+import { CornerDownLeft, PanelLeft, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -16,36 +16,23 @@ import {
 } from "@/components/ui/command";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useSidebar } from "@/components/ui/sidebar";
+import { ModKbd } from "@/components/shell/mod-kbd";
 import { useChatPanel } from "@/hooks/use-chat-panel";
 import { useCommandPalette } from "@/hooks/use-command-palette";
-import { useNavSequences } from "@/hooks/use-nav-sequences";
 import { modules } from "@/modules";
-
-function ShortcutHint({ shortcut }: { shortcut: string }) {
-  return (
-    <CommandShortcut>
-      <KbdGroup>
-        {shortcut.split(" ").map((key, index) => (
-          <Kbd key={index}>{key}</Kbd>
-        ))}
-      </KbdGroup>
-    </CommandShortcut>
-  );
-}
 
 /**
  * Cmd/Ctrl+K palette (D7): Quick actions (module verbs from manifest
  * quickActions), Recents (module navigation), Actions (shell toggles). All
- * module entries derive from the registry — the shell names no module. Also
- * hosts the registry-driven G-sequences so keyboard paths live in one place.
+ * module entries derive from the registry — the shell names no module.
+ * Only the global shortcuts (palette, AI panel, sidebar) are surfaced as
+ * hints; there are no per-module shortcuts.
  */
 export function CommandPalette() {
   const router = useRouter();
   const { open, setOpen } = useCommandPalette();
   const { toggle: toggleChat } = useChatPanel();
   const { toggleSidebar } = useSidebar();
-
-  useNavSequences();
 
   function run(action: () => void) {
     setOpen(false);
@@ -92,11 +79,7 @@ export function CommandPalette() {
                 >
                   <module.icon />
                   <span>Go to {module.label}</span>
-                  {soon ? (
-                    <CommandShortcut>Soon</CommandShortcut>
-                  ) : (
-                    module.shortcut && <ShortcutHint shortcut={module.shortcut} />
-                  )}
+                  {soon && <CommandShortcut>Soon</CommandShortcut>}
                 </CommandItem>
               );
             })}
@@ -106,12 +89,22 @@ export function CommandPalette() {
             <CommandItem value="Toggle AI assistant chat" onSelect={() => run(toggleChat)}>
               <Sparkles />
               <span>Toggle AI assistant</span>
-              <ShortcutHint shortcut="⌘ J" />
+              <CommandShortcut>
+                <KbdGroup>
+                  <ModKbd />
+                  <Kbd>J</Kbd>
+                </KbdGroup>
+              </CommandShortcut>
             </CommandItem>
             <CommandItem value="Toggle sidebar collapse" onSelect={() => run(toggleSidebar)}>
               <PanelLeft />
               <span>Toggle sidebar</span>
-              <ShortcutHint shortcut="Ctrl B" />
+              <CommandShortcut>
+                <KbdGroup>
+                  <ModKbd />
+                  <Kbd>B</Kbd>
+                </KbdGroup>
+              </CommandShortcut>
             </CommandItem>
           </CommandGroup>
         </CommandList>
@@ -135,9 +128,7 @@ export function CommandPalette() {
         <span className="ml-auto flex items-center gap-1.5">
           Open menu
           <KbdGroup>
-            <Kbd>
-              <CommandIcon aria-label="Cmd" />
-            </Kbd>
+            <ModKbd />
             <Kbd>K</Kbd>
           </KbdGroup>
         </span>

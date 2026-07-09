@@ -120,7 +120,7 @@ shadcn/ui components are vendored into `src/components/ui/` (add more with `npx 
 ### Conventions
 
 - **Animations use Motion** (`motion/react`) for anything custom — panel slides, presence, staged reveals. shadcn's built-in CSS transitions and hover/focus styling stay CSS. (See `AGENTS.md`.)
-- **Keyboard first:** every critical path works without a mouse. Current map: **⌘J** chat panel · **Ctrl+B** sidebar · **⌘K** command palette (in progress). Active nav gets `aria-current="page"`; panels wire `aria-expanded`/`aria-controls`; hidden-but-mounted surfaces get `inert`.
+- **Keyboard first:** every critical path works without a mouse. Three global shortcuts, each accepting **⌘ (macOS) or Ctrl (Windows/Linux)** — `+K` command palette · `+J` AI chat panel · `+B` sidebar. Hints render the correct modifier per platform (`ModKbd`). Active nav gets `aria-current="page"`; panels wire `aria-expanded`/`aria-controls`; hidden-but-mounted surfaces get `inert`.
 - **Pointers:** anything clickable shows `cursor: pointer` (Tailwind v4 preflight defaults buttons to `default`; overridden in the base layer). Disabled states keep the default cursor.
 - **Server components by default**; `"use client"` only where interactivity demands it (shell internals, table filters, chat).
 - **Mobile = graceful degradation:** the table prunes columns by information priority (currency → title → method → date; contractor/amount/status always survive), the sidebar becomes a drawer, the chat panel a sheet.

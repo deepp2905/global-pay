@@ -1,6 +1,6 @@
 "use client";
 
-import { Command, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname } from "next/navigation";
 
@@ -9,6 +9,7 @@ import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ModKbd } from "@/components/shell/mod-kbd";
 import { PILL_FADE_IN, PILL_FADE_OUT, useChatPanel } from "@/hooks/use-chat-panel";
 import { modules } from "@/modules";
 
@@ -56,9 +57,7 @@ export function AppHeader() {
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
                   <KbdGroup>
-                    <Kbd>
-                      <Command aria-label="Cmd" />
-                    </Kbd>
+                    <ModKbd />
                     <Kbd>J</Kbd>
                   </KbdGroup>
                 </TooltipContent>

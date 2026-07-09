@@ -7,7 +7,6 @@ export const invoicesManifest: ModuleManifest = {
   label: "Invoices",
   icon: ReceiptText,
   href: "/invoices",
-  shortcut: "G I",
   group: "operations",
   description: "Contractor invoices and payout states",
   quickActions: [

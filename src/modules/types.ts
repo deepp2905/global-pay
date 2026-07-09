@@ -3,9 +3,9 @@ import type { LucideIcon } from "lucide-react";
 /**
  * The contract every module fulfills to appear in the app.
  *
- * This is the single extension surface: the sidebar, command palette, and
- * keyboard shortcuts all derive from manifests registered in `modules/index.ts`.
- * Nothing in `components/shell/` may reference a specific module.
+ * This is the single extension surface: the sidebar and command palette all
+ * derive from manifests registered in `modules/index.ts`. Nothing in
+ * `components/shell/` may reference a specific module.
  */
 export interface ModuleManifest {
   /** Stable unique id, also used as the React key. */
@@ -16,11 +16,6 @@ export interface ModuleManifest {
   icon: LucideIcon;
   /** Route the module mounts at, e.g. "/invoices". */
   href: string;
-  /**
-   * Optional palette shortcut hint (e.g. "G then D"). Rendering and binding
-   * happen in the command palette; modules only declare the key.
-   */
-  shortcut?: string;
   /** Sidebar section the module belongs to. Groups are the nav hierarchy. */
   group: "workspace" | "operations" | "insights";
   /** One-line description shown in the command palette. */
