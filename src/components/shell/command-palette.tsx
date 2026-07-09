@@ -1,6 +1,6 @@
 "use client";
 
-import { CornerDownLeft, PanelLeft, Sparkles } from "lucide-react";
+import { Command as CommandIcon, CornerDownLeft, PanelLeft, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -134,7 +134,9 @@ export function CommandPalette() {
         <span className="ml-auto flex items-center gap-1.5">
           Open menu
           <KbdGroup>
-            <Kbd>Ctrl</Kbd>
+            <Kbd>
+              <CommandIcon aria-label="Cmd" />
+            </Kbd>
             <Kbd>K</Kbd>
           </KbdGroup>
         </span>
