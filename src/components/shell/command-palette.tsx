@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/command";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useSidebar } from "@/components/ui/sidebar";
-import { ModKbd } from "@/components/shell/mod-kbd";
+import { ModShortcut } from "@/components/shell/mod-shortcut";
 import { useChatPanel } from "@/hooks/use-chat-panel";
 import { useCommandPalette } from "@/hooks/use-command-palette";
 import { modules } from "@/modules";
@@ -90,20 +90,14 @@ export function CommandPalette() {
               <Sparkles />
               <span>Toggle AI assistant</span>
               <CommandShortcut>
-                <KbdGroup>
-                  <ModKbd />
-                  <Kbd>J</Kbd>
-                </KbdGroup>
+                <ModShortcut keyLabel="J" />
               </CommandShortcut>
             </CommandItem>
             <CommandItem value="Toggle sidebar collapse" onSelect={() => run(toggleSidebar)}>
               <PanelLeft />
               <span>Toggle sidebar</span>
               <CommandShortcut>
-                <KbdGroup>
-                  <ModKbd />
-                  <Kbd>B</Kbd>
-                </KbdGroup>
+                <ModShortcut keyLabel="B" />
               </CommandShortcut>
             </CommandItem>
           </CommandGroup>
@@ -127,10 +121,7 @@ export function CommandPalette() {
         </span>
         <span className="ml-auto flex items-center gap-1.5">
           Open menu
-          <KbdGroup>
-            <ModKbd />
-            <Kbd>K</Kbd>
-          </KbdGroup>
+          <ModShortcut keyLabel="K" />
         </span>
       </div>
     </CommandDialog>

@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 
 import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import {
   Sidebar,
   SidebarContent,
@@ -23,7 +22,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ModKbd } from "@/components/shell/mod-kbd";
+import { ModShortcut } from "@/components/shell/mod-shortcut";
 import { useCommandPalette } from "@/hooks/use-command-palette";
 import { getModuleGroups } from "@/modules";
 import type { ModuleManifest } from "@/modules";
@@ -69,10 +68,7 @@ function SidebarSearchItem() {
       >
         <Search />
         <span>Search anything</span>
-        <KbdGroup className="ml-auto group-data-[collapsible=icon]:hidden">
-          <ModKbd />
-          <Kbd>K</Kbd>
-        </KbdGroup>
+        <ModShortcut keyLabel="K" className="ml-auto group-data-[collapsible=icon]:hidden" />
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
@@ -145,10 +141,7 @@ function SidebarCollapseButton() {
         </Button>
       </TooltipTrigger>
       <TooltipContent side="right">
-        <KbdGroup>
-          <ModKbd />
-          <Kbd>B</Kbd>
-        </KbdGroup>
+        <ModShortcut keyLabel="B" />
       </TooltipContent>
     </Tooltip>
   );
