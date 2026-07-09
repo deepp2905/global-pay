@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CalendarDays, CircleCheck, Clock4, FileText, TriangleAlert } from "lucide-react";
+import { Check, Clock, X } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/shell/page-header";
 import { InvoiceActions } from "@/modules/invoices/components/invoice-actions";
 import { MethodLabel } from "@/modules/invoices/components/method-label";
+import { StatusBadge } from "@/modules/invoices/components/status-badge";
 import { getInvoice, METHOD_LABELS, type Invoice } from "@/modules/invoices/data";
 import { cn, formatCurrency, formatDate, getInitials } from "@/lib/utils";
 
@@ -22,55 +22,50 @@ export async function generateMetadata({ params }: InvoiceDetailProps): Promise<
   return { title: `Invoice ${id}` };
 }
 
-type Tone = "muted" | "success" | "destructive";
-type ActivityEvent = { icon: typeof FileText; label: string; sub?: string; date: string; tone: Tone };
+type StepState = "done" | "pending" | "failed";
+type Step = { label: string; sub?: string; date?: string; state: StepState };
 
-/** Static activity trail derived from status — no backend (brief). */
-function getActivity(invoice: Invoice): ActivityEvent[] {
-  const events: ActivityEvent[] = [
+/** The fixed three-step payout trail; step states derive from status (no backend). */
+function getTimeline(invoice: Invoice): Step[] {
+  const initiated = invoice.status !== "pending";
+  const paid = invoice.status === "paid";
+  const failed = invoice.status === "failed";
+
+  return [
     {
-      icon: FileText,
       label: "Invoice issued",
       sub: formatCurrency(invoice.amount, invoice.currency),
       date: invoice.date,
-      tone: "muted",
+      state: "done",
     },
-  ];
-  if (invoice.status !== "pending") {
-    events.push({
-      icon: Clock4,
+    {
       label: "Payment initiated",
       sub: METHOD_LABELS[invoice.method],
-      date: invoice.date,
-      tone: "muted",
-    });
-  }
-  if (invoice.status === "paid") {
-    events.push({
-      icon: CircleCheck,
-      label: "Payout completed",
-      sub: `+${formatCurrency(invoice.usdValue, "USD")} settled`,
-      date: invoice.dueDate ?? invoice.date,
-      tone: "success",
-    });
-  }
-  if (invoice.status === "failed") {
-    events.push({
-      icon: TriangleAlert,
-      label: "Payout failed",
-      sub: "Rail rejected the transfer",
-      date: invoice.date,
-      tone: "destructive",
-    });
-  }
-  return events;
+      date: initiated ? invoice.date : undefined,
+      state: initiated ? "done" : "pending",
+    },
+    failed
+      ? { label: "Payout failed", sub: "Rail rejected the transfer", date: invoice.date, state: "failed" }
+      : {
+          label: "Payout completed",
+          sub: paid ? `+${formatCurrency(invoice.usdValue, "USD")} settled` : undefined,
+          date: paid ? (invoice.dueDate ?? invoice.date) : undefined,
+          state: paid ? "done" : "pending",
+        },
+  ];
 }
 
-const toneRing: Record<Tone, string> = {
-  muted: "bg-muted text-muted-foreground",
-  success: "bg-success/10 text-success",
-  destructive: "bg-destructive/10 text-destructive",
+const stepTone: Record<StepState, string> = {
+  done: "bg-success/10 text-success",
+  pending: "bg-muted text-muted-foreground",
+  failed: "bg-destructive/10 text-destructive",
 };
+
+/** Only a tick (cleared) or a clock (pending) — plus a cross for the failed terminal step. */
+function StepIcon({ state }: { state: StepState }) {
+  const Icon = state === "failed" ? X : state === "done" ? Check : Clock;
+  return <Icon className="size-3" />;
+}
 
 /** A label → value row for the payment-details list. */
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
@@ -87,7 +82,7 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
   const invoice = getInvoice(id);
   if (!invoice) notFound();
 
-  const activity = getActivity(invoice);
+  const timeline = getTimeline(invoice);
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-8">
@@ -96,7 +91,7 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
       {/* Who was paid, and how much — the first things to confirm post-payout. */}
       <Card className={cardCls}>
         <CardContent className="flex flex-col gap-5">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Avatar className="size-12">
                 <AvatarFallback>{getInitials(invoice.contractor)}</AvatarFallback>
@@ -108,10 +103,7 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
                 </span>
               </div>
             </div>
-            <Badge variant="secondary" className="gap-1.5">
-              <CalendarDays />
-              Issued {formatDate(invoice.date, "long")}
-            </Badge>
+            <StatusBadge status={invoice.status} />
           </div>
           <Separator />
           <div className="flex flex-col gap-1">
@@ -150,29 +142,31 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
         </CardContent>
       </Card>
 
-      {/* The trail — did it complete, and when. */}
+      {/* Fixed three-step trail: green tick for cleared steps, grey clock for pending. */}
       <Card className={cardCls}>
         <CardHeader>
           <CardTitle className="text-base">Timeline</CardTitle>
         </CardHeader>
         <CardContent>
           <ol className="flex flex-col">
-            {activity.map((event, index, list) => (
-              <li key={event.label} className="flex gap-3">
+            {timeline.map((step, index, list) => (
+              <li key={step.label} className="flex gap-3">
                 <div className="flex flex-col items-center">
-                  <span className={cn("flex size-5 items-center justify-center rounded-full", toneRing[event.tone])}>
-                    <event.icon className="size-3" />
+                  <span className={cn("flex size-5 items-center justify-center rounded-full", stepTone[step.state])}>
+                    <StepIcon state={step.state} />
                   </span>
-                  {index < list.length - 1 && <Separator orientation="vertical" className="my-1 flex-1" />}
+                  {index < list.length - 1 && <span className="my-1 w-px flex-1 bg-border" />}
                 </div>
                 <div className={cn("flex flex-1 items-start justify-between gap-3", index < list.length - 1 && "pb-5")}>
                   <div className="flex flex-col gap-0.5">
-                    <p className="text-sm leading-none font-medium">{event.label}</p>
-                    {event.sub && <p className="text-sm text-muted-foreground tabular-nums">{event.sub}</p>}
+                    <p className="text-sm leading-none font-medium">{step.label}</p>
+                    {step.sub && <p className="text-sm text-muted-foreground tabular-nums">{step.sub}</p>}
                   </div>
-                  <span className="text-xs whitespace-nowrap text-muted-foreground tabular-nums">
-                    {formatDate(event.date, "long")}
-                  </span>
+                  {step.date && (
+                    <span className="text-xs whitespace-nowrap text-muted-foreground tabular-nums">
+                      {formatDate(step.date, "long")}
+                    </span>
+                  )}
                 </div>
               </li>
             ))}
