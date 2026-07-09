@@ -1,38 +1,86 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CircleCheck, CircleDollarSign, Clock4, FileText, TriangleAlert } from "lucide-react";
+import { CircleCheck, Clock4, FileText, TriangleAlert } from "lucide-react";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/shell/page-header";
+import { GenerateInvoiceButton } from "@/modules/invoices/components/generate-invoice-button";
 import { MethodLabel } from "@/modules/invoices/components/method-label";
 import { StatusBadge } from "@/modules/invoices/components/status-badge";
 import { getInvoice, METHOD_LABELS, type Invoice } from "@/modules/invoices/data";
-import { cn, formatCurrency, formatDate } from "@/lib/utils";
-
-const cardCls = "rounded-xl border ring-0";
-const eyebrowCls = "text-xs font-medium text-muted-foreground uppercase";
+import { cn, formatCurrency, formatDate, getInitials } from "@/lib/utils";
 
 type InvoiceDetailProps = { params: Promise<{ id: string }> };
+
+const eyebrowCls = "text-xs font-medium text-muted-foreground uppercase";
+const cardCls = "rounded-xl border ring-0";
 
 export async function generateMetadata({ params }: InvoiceDetailProps): Promise<Metadata> {
   const { id } = await params;
   return { title: `Invoice ${id}` };
 }
 
+type Tone = "muted" | "success" | "destructive";
+type ActivityEvent = { icon: typeof FileText; label: string; sub?: string; date: string; tone: Tone };
+
 /** Static activity trail derived from status — no backend (brief). */
-function getActivity(invoice: Invoice) {
-  const events = [{ icon: FileText, label: "Invoice issued", date: invoice.date }];
+function getActivity(invoice: Invoice): ActivityEvent[] {
+  const events: ActivityEvent[] = [
+    {
+      icon: FileText,
+      label: "Invoice issued",
+      sub: formatCurrency(invoice.amount, invoice.currency),
+      date: invoice.date,
+      tone: "muted",
+    },
+  ];
   if (invoice.status !== "pending") {
-    events.push({ icon: Clock4, label: "Payment initiated", date: invoice.date });
+    events.push({
+      icon: Clock4,
+      label: "Payment initiated",
+      sub: METHOD_LABELS[invoice.method],
+      date: invoice.date,
+      tone: "muted",
+    });
   }
   if (invoice.status === "paid") {
-    events.push({ icon: CircleCheck, label: "Payout completed", date: invoice.dueDate ?? invoice.date });
+    events.push({
+      icon: CircleCheck,
+      label: "Payout completed",
+      sub: `+${formatCurrency(invoice.usdValue, "USD")} settled`,
+      date: invoice.dueDate ?? invoice.date,
+      tone: "success",
+    });
   }
   if (invoice.status === "failed") {
-    events.push({ icon: TriangleAlert, label: "Payout failed — rail rejected the transfer", date: invoice.date });
+    events.push({
+      icon: TriangleAlert,
+      label: "Payout failed",
+      sub: "Rail rejected the transfer",
+      date: invoice.date,
+      tone: "destructive",
+    });
   }
   return events;
+}
+
+const toneRing: Record<Tone, string> = {
+  muted: "bg-muted text-muted-foreground",
+  success: "bg-success/10 text-success",
+  destructive: "bg-destructive/10 text-destructive",
+};
+
+/** A label → value row for the payment-details list. */
+function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b py-3 text-sm first:pt-0 last:border-0 last:pb-0">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="text-right font-medium">{children}</dd>
+    </div>
+  );
 }
 
 export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) {
@@ -40,17 +88,10 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
   const invoice = getInvoice(id);
   if (!invoice) notFound();
 
-  const fields: [string, React.ReactNode][] = [
-    ["Contractor", invoice.contractor],
-    ["Role", invoice.title],
-    ["Country", invoice.country],
-    ["Currency", invoice.currency],
-    ["Payment method", METHOD_LABELS[invoice.method]],
-    ["Invoice ID", invoice.id],
-  ];
+  const activity = getActivity(invoice);
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-8">
       <PageHeader
         back={{ href: "/invoices", label: "Invoices" }}
         title={
@@ -59,87 +100,93 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
             <StatusBadge status={invoice.status} />
           </span>
         }
-        description={`Issued ${formatDate(invoice.date, "long")} · ${invoice.contractor}`}
+        description={`Issued ${formatDate(invoice.date, "long")}`}
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className={cardCls}>
-          <CardContent className="flex flex-col gap-1">
-            <span className={eyebrowCls}>Amount</span>
-            <p className="text-2xl font-semibold tracking-tight tabular-nums">
-              {formatCurrency(invoice.amount, invoice.currency)}
-            </p>
-            <p className="text-sm text-muted-foreground tabular-nums">
-              ≈ {formatCurrency(invoice.usdValue, "USD")} settlement value
-            </p>
-          </CardContent>
-        </Card>
-        <Card className={cardCls}>
-          <CardContent className="flex flex-col gap-1">
-            <span className={eyebrowCls}>Payment</span>
-            <MethodLabel method={invoice.method} />
-            <p className="text-sm text-muted-foreground">
-              {invoice.currency} → {invoice.country}
-            </p>
-          </CardContent>
-        </Card>
-        <Card className={cardCls}>
-          <CardContent className="flex flex-col gap-1 text-sm">
-            <span className={eyebrowCls}>Dates</span>
-            <p>
-              Issued <span className="text-muted-foreground">{formatDate(invoice.date, "long")}</span>
-            </p>
-            <p>
-              Due{" "}
-              <span className="text-muted-foreground">
-                {invoice.dueDate ? formatDate(invoice.dueDate, "long") : "—"}
-              </span>
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 pt-2 lg:grid-cols-5">
-        <Card className={cn(cardCls, "lg:col-span-3")}>
-          <CardHeader>
-            <CardTitle className="text-base">Invoice details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-              {fields.map(([label, value]) => (
-                <div key={label} className="flex flex-col gap-0.5">
-                  <dt className={eyebrowCls}>{label}</dt>
-                  <dd className="text-sm">{value}</dd>
-                </div>
-              ))}
-            </dl>
-          </CardContent>
-        </Card>
-        <Card className={cn(cardCls, "lg:col-span-2")}>
-          <CardHeader>
-            <CardTitle className="text-base">Activity</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <ol className="flex flex-col">
-              {getActivity(invoice).map((event, index, list) => (
-                <li key={event.label} className="flex gap-3">
-                  <div className="flex flex-col items-center">
-                    <event.icon className="size-4 shrink-0 text-muted-foreground" />
-                    {index < list.length - 1 && <Separator orientation="vertical" className="my-1 flex-1" />}
-                  </div>
-                  <div className={cn("flex flex-col gap-0.5", index < list.length - 1 && "pb-5")}>
-                    <p className="text-sm leading-none font-medium">{event.label}</p>
-                    <p className="text-sm text-muted-foreground">{formatDate(event.date, "long")}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <div className="flex items-center gap-2 border-t pt-4 text-sm text-muted-foreground">
-              <CircleDollarSign className="size-4" />
-              Settlement reference {invoice.id.replace("INV", "SET")}
+      {/* Who was paid, and how much — the first things to confirm post-payout. */}
+      <Card className={cardCls}>
+        <CardContent className="flex flex-col gap-5">
+          <div className="flex items-center gap-4">
+            <Avatar className="size-12">
+              <AvatarFallback>{getInitials(invoice.contractor)}</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-lg leading-none font-semibold">{invoice.contractor}</span>
+                <Badge variant="secondary">{invoice.title}</Badge>
+              </div>
+              <span className="text-sm text-muted-foreground">Contractor · {invoice.country}</span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <Separator />
+          <div className="flex flex-col gap-1">
+            <span className={eyebrowCls}>Payout amount</span>
+            <span className="text-3xl font-semibold tracking-tight tabular-nums">
+              {formatCurrency(invoice.amount, invoice.currency)}
+            </span>
+            <span className="text-sm text-muted-foreground tabular-nums">
+              ≈ {formatCurrency(invoice.usdValue, "USD")} settlement value
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* How the money moved and the audit references. */}
+      <Card className={cardCls}>
+        <CardHeader>
+          <CardTitle className="text-base">Payment details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <dl className="flex flex-col">
+            <DetailRow label="Payment method">
+              <MethodLabel method={invoice.method} />
+            </DetailRow>
+            <DetailRow label="Currency">{invoice.currency}</DetailRow>
+            <DetailRow label="Destination">{invoice.country}</DetailRow>
+            <DetailRow label="Issued">{formatDate(invoice.date, "long")}</DetailRow>
+            <DetailRow label="Due">{invoice.dueDate ? formatDate(invoice.dueDate, "long") : "—"}</DetailRow>
+            <DetailRow label="Invoice ID">
+              <span className="tabular-nums">{invoice.id}</span>
+            </DetailRow>
+            <DetailRow label="Settlement reference">
+              <span className="tabular-nums">{invoice.id.replace("INV", "SET")}</span>
+            </DetailRow>
+          </dl>
+        </CardContent>
+      </Card>
+
+      {/* The trail — did it complete, and when. */}
+      <Card className={cardCls}>
+        <CardHeader>
+          <CardTitle className="text-base">Timeline</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ol className="flex flex-col">
+            {activity.map((event, index, list) => (
+              <li key={event.label} className="flex gap-3">
+                <div className="flex flex-col items-center">
+                  <span className={cn("flex size-5 items-center justify-center rounded-full", toneRing[event.tone])}>
+                    <event.icon className="size-3" />
+                  </span>
+                  {index < list.length - 1 && <Separator orientation="vertical" className="my-1 flex-1" />}
+                </div>
+                <div className={cn("flex flex-1 items-start justify-between gap-3", index < list.length - 1 && "pb-5")}>
+                  <div className="flex flex-col gap-0.5">
+                    <p className="text-sm leading-none font-medium">{event.label}</p>
+                    {event.sub && <p className="text-sm text-muted-foreground tabular-nums">{event.sub}</p>}
+                  </div>
+                  <span className="text-xs whitespace-nowrap text-muted-foreground tabular-nums">
+                    {formatDate(event.date, "long")}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end">
+        <GenerateInvoiceButton />
       </div>
     </div>
   );
