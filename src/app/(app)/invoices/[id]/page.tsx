@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/shell/page-header";
 import { InvoiceActions } from "@/modules/invoices/components/invoice-actions";
 import { MethodLabel } from "@/modules/invoices/components/method-label";
-import { getInvoice, METHOD_LABELS, STATUS_LABELS, type Invoice } from "@/modules/invoices/data";
+import { getInvoice, METHOD_LABELS, type Invoice } from "@/modules/invoices/data";
 import { cn, formatCurrency, formatDate, getInitials } from "@/lib/utils";
 
 type InvoiceDetailProps = { params: Promise<{ id: string }> };
@@ -180,23 +180,7 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
         </CardContent>
       </Card>
 
-      <InvoiceActions
-        status={invoice.status}
-        usdLabel={formatCurrency(invoice.usdValue, "USD")}
-        pdf={{
-          id: invoice.id,
-          status: STATUS_LABELS[invoice.status],
-          contractor: invoice.contractor,
-          role: invoice.title,
-          destination: invoice.country,
-          amount: `${invoice.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 8 })} ${invoice.currency}`,
-          settlement: formatCurrency(invoice.usdValue, "USD"),
-          method: METHOD_LABELS[invoice.method],
-          issued: formatDate(invoice.date, "long"),
-          due: invoice.dueDate ? formatDate(invoice.dueDate, "long") : "-",
-          reference: invoice.id.replace("INV", "SET"),
-        }}
-      />
+      <InvoiceActions status={invoice.status} usdLabel={formatCurrency(invoice.usdValue, "USD")} />
     </div>
   );
 }

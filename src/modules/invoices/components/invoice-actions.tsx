@@ -1,36 +1,18 @@
 "use client";
 
-import * as React from "react";
 import { ArrowRight, Download, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { buildInvoicePdf, type InvoicePdfData } from "@/modules/invoices/components/invoice-pdf";
 import type { InvoiceStatus } from "@/modules/invoices/data";
 
 /**
  * Footer for the invoice detail page: the USD amount on the left, a
- * status-driven CTA on the right. Paid invoices download a generated PDF
- * (opened in a new tab); everything else routes into the pay flow.
+ * status-driven CTA on the right. UI only — no payment or download backend.
  */
-export function InvoiceActions({
-  status,
-  usdLabel,
-  pdf,
-}: {
-  status: InvoiceStatus;
-  usdLabel: string;
-  pdf: InvoicePdfData;
-}) {
+export function InvoiceActions({ status, usdLabel }: { status: InvoiceStatus; usdLabel: string }) {
   const router = useRouter();
   const isPaid = status === "paid";
-
-  function downloadInvoice() {
-    const url = URL.createObjectURL(buildInvoicePdf(pdf));
-    window.open(url, "_blank", "noopener");
-    // Give the new tab time to load before releasing the blob.
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  }
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4">
@@ -39,7 +21,7 @@ export function InvoiceActions({
         <span className="text-xl font-semibold tracking-tight tabular-nums">{usdLabel}</span>
       </div>
       {isPaid ? (
-        <Button onClick={downloadInvoice}>
+        <Button>
           <Download data-icon="inline-start" />
           Download invoice
         </Button>
