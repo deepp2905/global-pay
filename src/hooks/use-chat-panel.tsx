@@ -5,6 +5,17 @@ import * as React from "react";
 const CHAT_PANEL_COOKIE = "chat_panel_open";
 const CHAT_PANEL_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 
+/**
+ * One clock for the pill/panel choreography (never simultaneous):
+ * open  = pill fades out fast → panel slides in after PANEL_OPEN_DELAY;
+ * close = panel collapses → pill fades in at rest, delayed by the fold.
+ * Sequencing, not a shared transition, is what hides the header reflow.
+ */
+export const PANEL_FOLD = { duration: 0.2, ease: "easeOut" as const };
+export const PILL_FADE_OUT = { duration: 0.1, ease: "easeOut" as const };
+export const PANEL_OPEN_DELAY = 0.12;
+export const PILL_FADE_IN = { delay: PANEL_FOLD.duration, duration: 0.15, ease: "easeOut" as const };
+
 type ChatPanelContextValue = {
   open: boolean;
   setOpen: (open: boolean) => void;

@@ -1,3 +1,5 @@
+import { MotionConfig } from "motion/react";
+
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppHeader } from "@/components/shell/app-header";
@@ -22,26 +24,29 @@ export function AppShell({
   chatDefaultOpen: boolean;
 }) {
   return (
-    <TooltipProvider>
-      <ChatPanelProvider defaultOpen={chatDefaultOpen}>
-        <CommandPaletteProvider>
-          <SidebarProvider defaultOpen={sidebarDefaultOpen}>
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:text-primary-foreground"
-            >
-              Skip to content
-            </a>
-            <AppSidebar />
-            <SidebarInset id="main-content" tabIndex={-1} className="min-w-0">
-              <AppHeader />
-              <div className="flex-1">{children}</div>
-            </SidebarInset>
-            <ChatPanel />
-            <CommandPalette />
-          </SidebarProvider>
-        </CommandPaletteProvider>
-      </ChatPanelProvider>
-    </TooltipProvider>
+    // reducedMotion="user" disables Motion transforms for prefers-reduced-motion users.
+    <MotionConfig reducedMotion="user">
+      <TooltipProvider>
+        <ChatPanelProvider defaultOpen={chatDefaultOpen}>
+          <CommandPaletteProvider>
+            <SidebarProvider defaultOpen={sidebarDefaultOpen}>
+              <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:text-primary-foreground"
+              >
+                Skip to content
+              </a>
+              <AppSidebar />
+              <SidebarInset id="main-content" tabIndex={-1} className="min-w-0">
+                <AppHeader />
+                <div className="flex-1">{children}</div>
+              </SidebarInset>
+              <ChatPanel />
+              <CommandPalette />
+            </SidebarProvider>
+          </CommandPaletteProvider>
+        </ChatPanelProvider>
+      </TooltipProvider>
+    </MotionConfig>
   );
 }
