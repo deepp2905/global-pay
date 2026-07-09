@@ -81,6 +81,7 @@ export function InvoicesTable() {
             setTab(value as StatusTab);
             setPage(1);
           }}
+          className="max-w-full overflow-x-auto"
         >
           <TabsList>
             {STATUS_TABS.map((status) => (

@@ -116,8 +116,9 @@ export function CommandPalette() {
           </CommandGroup>
         </CommandList>
       </Command>
-      {/* px-5 keeps the hints clear of the dialog's 4xl corner arc. */}
-      <div className="flex items-center gap-4 border-t px-5 py-2.5 text-xs text-muted-foreground">
+      {/* px-5 keeps the hints clear of the dialog's 4xl corner arc.
+          Hidden below sm — keycap hints are keyboard affordances. */}
+      <div className="hidden items-center gap-4 border-t px-5 py-2.5 text-xs text-muted-foreground sm:flex">
         <span className="flex items-center gap-1.5">
           Select
           <KbdGroup>
