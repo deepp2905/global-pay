@@ -24,17 +24,17 @@ function getStats() {
   return [
     {
       value: formatCurrency(outstanding, "USD"),
-      label: "Outstanding · USD settlement",
+      label: "Outstanding balance",
       icon: TrendingUp,
     },
     {
       value: formatCurrency(paidLast30, "USD"),
-      label: "Paid · last 30 days",
+      label: "Paid last 30 days",
       icon: CircleCheck,
     },
     {
       value: String(pendingCount),
-      label: "Invoices awaiting approval",
+      label: "Awaiting approval",
       icon: Clock4,
     },
     {
@@ -56,7 +56,7 @@ export default function DashboardPage() {
               <stat.icon className="size-5 text-primary" />
               <div className="flex flex-col gap-1">
                 <p className="text-2xl font-semibold tracking-tight tabular-nums">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className="text-sm whitespace-nowrap text-muted-foreground">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
