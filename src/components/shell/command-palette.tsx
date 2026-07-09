@@ -12,6 +12,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
+  CommandShortcut,
 } from "@/components/ui/command";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -22,11 +23,13 @@ import { modules } from "@/modules";
 
 function ShortcutHint({ shortcut }: { shortcut: string }) {
   return (
-    <KbdGroup className="ml-auto">
-      {shortcut.split(" ").map((key, index) => (
-        <Kbd key={index}>{key}</Kbd>
-      ))}
-    </KbdGroup>
+    <CommandShortcut>
+      <KbdGroup>
+        {shortcut.split(" ").map((key, index) => (
+          <Kbd key={index}>{key}</Kbd>
+        ))}
+      </KbdGroup>
+    </CommandShortcut>
   );
 }
 
@@ -68,9 +71,11 @@ export function CommandPalette() {
               <CommandItem key={action.id} value={action.label} onSelect={() => run(() => router.push(action.href))}>
                 <action.icon />
                 <span>{action.label}</span>
-                <Kbd className="ml-auto">
-                  <CornerDownLeft aria-label="Enter" />
-                </Kbd>
+                <CommandShortcut>
+                  <Kbd>
+                    <CornerDownLeft aria-label="Enter" />
+                  </Kbd>
+                </CommandShortcut>
               </CommandItem>
             ))}
           </CommandGroup>
@@ -88,7 +93,7 @@ export function CommandPalette() {
                   <module.icon />
                   <span>Go to {module.label}</span>
                   {soon ? (
-                    <span className="ml-auto text-xs text-muted-foreground">Soon</span>
+                    <CommandShortcut>Soon</CommandShortcut>
                   ) : (
                     module.shortcut && <ShortcutHint shortcut={module.shortcut} />
                   )}
@@ -111,7 +116,8 @@ export function CommandPalette() {
           </CommandGroup>
         </CommandList>
       </Command>
-      <div className="flex items-center gap-4 border-t px-3 py-2 text-xs text-muted-foreground">
+      {/* px-5 keeps the hints clear of the dialog's 4xl corner arc. */}
+      <div className="flex items-center gap-4 border-t px-5 py-2.5 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           Select
           <KbdGroup>
