@@ -96,13 +96,20 @@ const LOREM_REPLIES = [
 const THINKING_MIN = 900;
 const THINKING_MAX = 2200;
 
+// Assistant greeting shown when the panel opens, before any exchange.
+const INTRO_MESSAGE: ChatMessage = {
+  id: "intro",
+  role: "assistant",
+  text: "Hi! I'm your payments assistant. How can I help you today?",
+};
+
 /**
  * Owns the mock chat thread: sending appends a user bubble, flips to a
  * "thinking" state, then after a randomized delay appends a canned AI reply.
- * Purely front-end — there is no model behind it.
+ * Purely front-end — there is no model behind it. Seeded with an intro message.
  */
 function useChatThread() {
-  const [messages, setMessages] = React.useState<ChatMessage[]>([]);
+  const [messages, setMessages] = React.useState<ChatMessage[]>([INTRO_MESSAGE]);
   const [thinking, setThinking] = React.useState(false);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -193,7 +200,8 @@ function ChatComposer({ onSend, disabled }: { onSend: (text: string) => void; di
               submit();
             }
           }}
-          placeholder="Ask about payouts, invoices…"
+          id="chat-composer-input"
+          placeholder="Message the assistant…"
           aria-label="Message the AI assistant"
           rows={1}
           className="field-sizing-content max-h-40 w-full resize-none bg-transparent px-3.5 py-2.5 pr-12 text-sm outline-none placeholder:text-muted-foreground"
@@ -223,17 +231,14 @@ function ChatPanelBody() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, thinking]);
 
-  const empty = messages.length === 0 && !thinking;
-
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <ScrollArea className="min-h-0 flex-1">
-        <div className="flex flex-col gap-4 p-4">
-          {empty && (
-            <p className="text-sm text-muted-foreground">
-              Ask about payouts, invoices, or contractors to get started.
-            </p>
-          )}
+      {/* Bubbles anchor to the bottom: override Radix's display:table inner
+          wrapper to a full-height flex box so the message column can push its
+          content down — a short thread sits at the bottom and only scrolls once
+          it overflows. */}
+      <ScrollArea className="min-h-0 flex-1 *:data-[slot=scroll-area-viewport]:*:flex! *:data-[slot=scroll-area-viewport]:*:h-full">
+        <div className="flex min-h-full flex-1 flex-col justify-end gap-4 p-4">
           {messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))}
@@ -284,15 +289,16 @@ export function ChatPanel() {
   const closeButtonRef = React.useRef<HTMLButtonElement>(null);
   const prevOpenRef = React.useRef(open);
 
-  // The pill unmounts while the panel is open, so hand focus to the panel's
-  // close button on open and back to the pill on close. Skipped on mount so
-  // a cookie-restored open panel doesn't steal focus.
+  // On open, focus the composer so the user can type immediately; on close,
+  // return focus to the pill (which remounts). Skipped on mount so a cookie-
+  // restored open panel doesn't steal focus. The rAF lets the panel mount/slide
+  // in first (esp. the mobile sheet) before we move focus into it.
   React.useEffect(() => {
     if (prevOpenRef.current === open) return;
     prevOpenRef.current = open;
     if (isMobile) return; // the sheet manages its own focus
     if (open) {
-      closeButtonRef.current?.focus();
+      requestAnimationFrame(() => document.getElementById("chat-composer-input")?.focus());
     } else {
       document.getElementById("ai-assistant-trigger")?.focus();
     }
@@ -301,7 +307,15 @@ export function ChatPanel() {
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="w-full p-0 sm:max-w-sm">
+        <SheetContent
+          side="right"
+          className="w-full p-0 sm:max-w-sm"
+          onOpenAutoFocus={(event) => {
+            // Focus the composer instead of Radix's default first focusable.
+            event.preventDefault();
+            document.getElementById("chat-composer-input")?.focus();
+          }}
+        >
           <SheetHeader className="border-b">
             <SheetTitle className="flex items-center gap-2 text-sm">
               <Sparkles className="size-4" /> Ask AI
