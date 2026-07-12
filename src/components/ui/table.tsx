@@ -35,7 +35,9 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+        // Hover/selected highlight applies to body rows only — the header row
+        // shouldn't react to hover.
+        "border-b transition-colors [tbody_&]:hover:bg-muted/50 [tbody_&]:has-aria-expanded:bg-muted/50 [tbody_&]:data-[state=selected]:bg-muted",
         className
       )}
       {...props}
