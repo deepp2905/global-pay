@@ -161,3 +161,40 @@
     }
   }
 }
+
+/* Shimmer sweep for transient "thinking" text: a bright band travels across
+   the glyphs on a constant loop (linear, per constant-motion animations).
+   Reduced motion falls back to a static muted color. */
+@keyframes text-shimmer {
+  0% {
+    background-position: 150% center;
+  }
+  100% {
+    background-position: -150% center;
+  }
+}
+
+@utility text-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-muted-foreground) 0%,
+    var(--color-muted-foreground) 40%,
+    var(--color-foreground) 50%,
+    var(--color-muted-foreground) 60%,
+    var(--color-muted-foreground) 100%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: text-shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-shimmer {
+    animation: none;
+    background: none;
+    color: var(--color-muted-foreground);
+    -webkit-text-fill-color: currentcolor;
+  }
+}
