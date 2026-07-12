@@ -71,7 +71,7 @@ export function AppHeader() {
                     className="rounded-full"
                   >
                     <Sparkles />
-                    AI Assistant
+                    Ask AI
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">

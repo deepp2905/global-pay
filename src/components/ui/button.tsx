@@ -46,9 +46,13 @@ const MotionSlot = motion.create(Slot.Root);
 
 // A quick press-in — transforms only, so MotionConfig reducedMotion="user"
 // (set in the app shell) disables it for reduced-motion users automatically.
-// A low-bounce spring gives the press a tactile settle on release.
+// A low-bounce spring gives the press a tactile settle on release. Icon buttons
+// press a touch deeper (0.95) since they're small and square.
 const TAP = { scale: 0.97 };
+const ICON_TAP = { scale: 0.95 };
 const TAP_TRANSITION = { type: "spring" as const, duration: 0.12, bounce: 0.1 };
+
+const ICON_SIZES = new Set(["icon", "icon-xs", "icon-sm", "icon-lg"]);
 
 function Button({
   className,
@@ -65,7 +69,7 @@ function Button({
     "data-variant": variant,
     "data-size": size,
     className: cn(buttonVariants({ variant, size, className })),
-    whileTap: TAP,
+    whileTap: size && ICON_SIZES.has(size) ? ICON_TAP : TAP,
     transition: TAP_TRANSITION,
   } as const;
 

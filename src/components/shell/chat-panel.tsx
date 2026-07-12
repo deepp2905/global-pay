@@ -72,7 +72,7 @@ function ChatPanelChrome({
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
         <Sparkles className="size-4" />
-        <span className="text-sm font-medium">AI Assistant</span>
+        <span className="text-sm font-medium">Ask AI</span>
         <Button ref={closeButtonRef} variant="ghost" size="icon" className="ml-auto" onClick={onClose}>
           <X />
           <span className="sr-only">Close AI assistant</span>
@@ -117,7 +117,7 @@ export function ChatPanel() {
         <SheetContent side="right" className="w-full p-0 sm:max-w-sm">
           <SheetHeader className="border-b">
             <SheetTitle className="flex items-center gap-2 text-sm">
-              <Sparkles className="size-4" /> AI Assistant
+              <Sparkles className="size-4" /> Ask AI
             </SheetTitle>
             <SheetDescription className="sr-only">Chat with the workspace AI assistant</SheetDescription>
           </SheetHeader>

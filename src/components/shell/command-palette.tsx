@@ -94,9 +94,9 @@ export function CommandPalette() {
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Actions">
-            <CommandItem value="Toggle AI assistant chat" onSelect={() => run(toggleChat)}>
+            <CommandItem value="Toggle Ask AI chat" onSelect={() => run(toggleChat)}>
               <Sparkles />
-              <span>Toggle AI assistant</span>
+              <span>Toggle Ask AI</span>
               <CommandShortcut>
                 <ModShortcut keyLabel="J" />
               </CommandShortcut>
