@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown, Headset, MessageSquareText, PanelLeft, Search, Settings } from "lucide-react";
+import { ChevronsUpDown, Headset, MessageSquareText, PanelLeft, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -24,7 +24,6 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ModShortcut } from "@/components/shell/mod-shortcut";
 import { markChromeNavigation } from "@/components/shell/route-transition";
-import { useCommandPalette } from "@/hooks/use-command-palette";
 import { getModuleGroups } from "@/modules";
 import type { ModuleManifest } from "@/modules";
 
@@ -52,24 +51,6 @@ function ModuleNavItem({ module, active }: { module: ModuleManifest; active: boo
           <module.icon />
           <span>{module.label}</span>
         </Link>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
-}
-
-/** Search affordance styled as an input; opens the command palette. */
-function SidebarSearchItem() {
-  const { setOpen } = useCommandPalette();
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        tooltip="Search"
-        onClick={() => setOpen(true)}
-        className="border bg-background text-muted-foreground shadow-xs"
-      >
-        <Search />
-        <span>Search anything</span>
-        <ModShortcut keyLabel="K" className="ml-auto group-data-[collapsible=icon]:hidden" />
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
@@ -178,9 +159,6 @@ export function AppSidebar() {
           </SidebarMenu>
           <SidebarCollapseButton />
         </div>
-        <SidebarMenu>
-          <SidebarSearchItem />
-        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         {groups.map(({ group, label, modules }) => (
