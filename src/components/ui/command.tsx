@@ -14,7 +14,7 @@ function Command({ className, ...props }: React.ComponentProps<typeof CommandPri
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        "flex size-full flex-col overflow-hidden rounded-4xl bg-popover px-1 text-popover-foreground",
+        "flex size-full flex-col overflow-hidden rounded-4xl bg-popover p-2 pb-0 text-popover-foreground",
         className
       )}
       {...props}
@@ -53,7 +53,7 @@ function CommandDialog({
 
 function CommandInput({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
-    <div data-slot="command-input-wrapper" className="p-1 pb-0">
+    <div data-slot="command-input-wrapper">
       <InputGroup className="h-9 bg-input/50">
         <CommandPrimitive.Input
           data-slot="command-input"
