@@ -6,6 +6,7 @@ import { AppHeader } from "@/components/shell/app-header";
 import { AppSidebar } from "@/components/shell/app-sidebar";
 import { ChatPanel } from "@/components/shell/chat-panel";
 import { CommandPalette } from "@/components/shell/command-palette";
+import { RouteTransition } from "@/components/shell/route-transition";
 import { ChatPanelProvider } from "@/hooks/use-chat-panel";
 import { CommandPaletteProvider } from "@/hooks/use-command-palette";
 
@@ -39,7 +40,9 @@ export function AppShell({
               <AppSidebar />
               <SidebarInset id="main-content" tabIndex={-1} className="min-w-0">
                 <AppHeader />
-                <div className="flex-1">{children}</div>
+                <div className="flex-1">
+                  <RouteTransition>{children}</RouteTransition>
+                </div>
               </SidebarInset>
               <ChatPanel />
               <CommandPalette />

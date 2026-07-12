@@ -144,4 +144,20 @@
   label:has(> input[type="radio"]:not(:disabled)) {
     cursor: pointer;
   }
+
+  /* Motion animations honor reduced motion via MotionConfig reducedMotion="user".
+     The CSS-driven enter/exit on Radix surfaces (dialog, sheet, dropdown, select)
+     isn't covered by that, so neutralize it here — every animated surface needs
+     its own reduced-motion path (they still open/close, just without movement). */
+  @media (prefers-reduced-motion: reduce) {
+    [data-slot="dialog-content"],
+    [data-slot="dialog-overlay"],
+    [data-slot="sheet-content"],
+    [data-slot="sheet-overlay"],
+    [data-slot="dropdown-menu-content"],
+    [data-slot="select-content"] {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
 }

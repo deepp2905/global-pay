@@ -17,6 +17,7 @@ import {
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useSidebar } from "@/components/ui/sidebar";
 import { ModShortcut } from "@/components/shell/mod-shortcut";
+import { markChromeNavigation } from "@/components/shell/route-transition";
 import { useChatPanel } from "@/hooks/use-chat-panel";
 import { useCommandPalette } from "@/hooks/use-command-palette";
 import { modules } from "@/modules";
@@ -39,6 +40,13 @@ export function CommandPalette() {
     action();
   }
 
+  // Palette jumps are launcher navigation, not in-page drilling — skip the
+  // route transition so they land instantly.
+  function navigate(href: string) {
+    markChromeNavigation();
+    router.push(href);
+  }
+
   const quickActions = modules.filter((m) => m.status !== "coming-soon").flatMap((m) => m.quickActions ?? []);
 
   return (
@@ -55,7 +63,7 @@ export function CommandPalette() {
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Quick actions">
             {quickActions.map((action) => (
-              <CommandItem key={action.id} value={action.label} onSelect={() => run(() => router.push(action.href))}>
+              <CommandItem key={action.id} value={action.label} onSelect={() => run(() => navigate(action.href))}>
                 <action.icon />
                 <span>{action.label}</span>
                 <CommandShortcut>
@@ -75,7 +83,7 @@ export function CommandPalette() {
                   key={module.id}
                   value={`Go to ${module.label} ${module.description ?? ""}`}
                   disabled={soon}
-                  onSelect={() => run(() => router.push(module.href))}
+                  onSelect={() => run(() => navigate(module.href))}
                 >
                   <module.icon />
                   <span>Go to {module.label}</span>

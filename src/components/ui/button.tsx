@@ -1,11 +1,12 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { motion } from "motion/react";
 import { Slot } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-4xl border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-4xl border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -38,6 +39,17 @@ const buttonVariants = cva(
   }
 );
 
+// Motion-wrapped element and Slot so every button gets the press feedback,
+// including asChild buttons (sidebar links, the workspace logo, etc.).
+const MotionButton = motion.button;
+const MotionSlot = motion.create(Slot.Root);
+
+// A quick press-in — transforms only, so MotionConfig reducedMotion="user"
+// (set in the app shell) disables it for reduced-motion users automatically.
+// A low-bounce spring gives the press a tactile settle on release.
+const TAP = { scale: 0.97 };
+const TAP_TRANSITION = { type: "spring" as const, duration: 0.12, bounce: 0.1 };
+
 function Button({
   className,
   variant = "default",
@@ -48,17 +60,23 @@ function Button({
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
   }) {
-  const Comp = asChild ? Slot.Root : "button";
+  const shared = {
+    "data-slot": "button",
+    "data-variant": variant,
+    "data-size": size,
+    className: cn(buttonVariants({ variant, size, className })),
+    whileTap: TAP,
+    transition: TAP_TRANSITION,
+  } as const;
 
-  return (
-    <Comp
-      data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  );
+  // asChild forwards to the caller's element (Link, etc.) via a motion Slot;
+  // otherwise render a motion <button>. Split so each branch keeps its own
+  // (non-union) prop types.
+  if (asChild) {
+    return <MotionSlot {...shared} {...(props as React.ComponentProps<typeof MotionSlot>)} />;
+  }
+
+  return <MotionButton {...shared} {...(props as React.ComponentProps<typeof MotionButton>)} />;
 }
 
 export { Button, buttonVariants };

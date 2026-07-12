@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ModShortcut } from "@/components/shell/mod-shortcut";
+import { markChromeNavigation } from "@/components/shell/route-transition";
 import { useCommandPalette } from "@/hooks/use-command-palette";
 import { getModuleGroups } from "@/modules";
 import type { ModuleManifest } from "@/modules";
@@ -47,7 +48,7 @@ function ModuleNavItem({ module, active }: { module: ModuleManifest; active: boo
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild isActive={active} tooltip={module.label}>
-        <Link href={module.href} aria-current={active ? "page" : undefined}>
+        <Link href={module.href} aria-current={active ? "page" : undefined} onClick={markChromeNavigation}>
           <module.icon />
           <span>{module.label}</span>
         </Link>
@@ -163,7 +164,7 @@ export function AppSidebar() {
           <SidebarMenu className="min-w-0 flex-1">
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild tooltip="Global Pay">
-                <Link href="/dashboard">
+                <Link href="/dashboard" onClick={markChromeNavigation}>
                   <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
                     G
                   </div>

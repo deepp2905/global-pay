@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
+import { motion } from "motion/react";
 
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -110,19 +111,29 @@ function CommandSeparator({ className, ...props }: React.ComponentProps<typeof C
   );
 }
 
+// Motion-wrapped cmdk item so rows get the same press feedback as buttons.
+const MotionCommandItem = motion.create(CommandPrimitive.Item);
+
+// Matches the Button press: 0.97 scale on a low-bounce spring (transforms only,
+// so MotionConfig reducedMotion="user" disables it automatically).
+const ITEM_TAP = { scale: 0.97 };
+const ITEM_TAP_TRANSITION = { type: "spring" as const, duration: 0.12, bounce: 0.1 };
+
 function CommandItem({ className, children, ...props }: React.ComponentProps<typeof CommandPrimitive.Item>) {
   return (
-    <CommandPrimitive.Item
+    <MotionCommandItem
       data-slot="command-item"
       className={cn(
-        "group/command-item relative flex cursor-default items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium outline-hidden select-none in-data-[slot=dialog-content]:rounded-3xl data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground",
+        "group/command-item relative flex cursor-pointer items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium outline-hidden select-none in-data-[slot=dialog-content]:rounded-3xl data-[disabled=true]:pointer-events-none data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground",
         className
       )}
-      {...props}
+      whileTap={ITEM_TAP}
+      transition={ITEM_TAP_TRANSITION}
+      {...(props as React.ComponentProps<typeof MotionCommandItem>)}
     >
       {children}
       <CheckIcon className="ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
-    </CommandPrimitive.Item>
+    </MotionCommandItem>
   );
 }
 
