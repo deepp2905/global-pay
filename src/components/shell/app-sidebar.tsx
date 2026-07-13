@@ -37,6 +37,9 @@ function ModuleNavItem({ module, active }: { module: ModuleManifest; active: boo
       <SidebarMenuItem>
         <SidebarMenuButton
           aria-disabled
+          // tabIndex={-1} skips it in the keyboard tab order (aria-disabled alone
+          // does not); aria-disabled still announces the state to assistive tech.
+          tabIndex={-1}
           tooltip={`${module.label} — coming soon`}
           // Keep pointer events so the tooltip still shows on hover (the button
           // variant would otherwise disable them for aria-disabled), and don't
