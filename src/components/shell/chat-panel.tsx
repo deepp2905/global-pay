@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PANEL_FOLD, PANEL_OPEN_DELAY, useChatPanel } from "@/hooks/use-chat-panel";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -486,10 +487,15 @@ function ChatPanelChrome({
       <div className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
         <Sparkles className="size-4" />
         <span className="text-sm font-medium">Ask AI</span>
-        <Button ref={closeButtonRef} variant="ghost" size="icon" className="ml-auto" onClick={onClose}>
-          <X />
-          <span className="sr-only">Close AI assistant</span>
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button ref={closeButtonRef} variant="ghost" size="icon" className="ml-auto" onClick={onClose}>
+              <X />
+              <span className="sr-only">Close AI assistant</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Close</TooltipContent>
+        </Tooltip>
       </div>
       <ChatPanelBody />
     </div>

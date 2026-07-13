@@ -75,6 +75,7 @@ export function AppHeader() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
+                  <span>Open chat</span>
                   <ModShortcut keyLabel="J" />
                 </TooltipContent>
               </Tooltip>
