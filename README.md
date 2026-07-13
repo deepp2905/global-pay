@@ -120,7 +120,8 @@ shadcn/ui components are vendored into `src/components/ui/` (add more with `npx 
 ### Conventions
 
 - **Animations use Motion** (`motion/react`) for anything custom — panel slides, presence, staged reveals. shadcn's built-in CSS transitions and hover/focus styling stay CSS. (See `AGENTS.md`.)
-- **Keyboard first:** every critical path works without a mouse. Three global shortcuts, each accepting **⌘ (macOS) or Ctrl (Windows/Linux)** — `+K` command palette · `+J` AI chat panel · `+B` sidebar. Hints render the correct modifier per platform (`ModKbd`). Active nav gets `aria-current="page"`; panels wire `aria-expanded`/`aria-controls`; hidden-but-mounted surfaces get `inert`.
+- **Keyboard first:** every critical path works without a mouse. Three global shortcuts, each accepting **⌘ (macOS) or Ctrl (Windows/Linux)** — `+K` command palette · `+J` AI chat panel · `+B` sidebar. Hints render the correct modifier per platform (`ModShortcut`). Active nav gets `aria-current="page"`; panels wire `aria-expanded`/`aria-controls`; hidden-but-mounted surfaces get `inert`.
+- **Tooltips** open after a 400ms hover-intent delay (set once on the shell's `TooltipProvider`), so pointer sweeps across the UI don't flash tooltips.
 - **Pointers:** anything clickable shows `cursor: pointer` (Tailwind v4 preflight defaults buttons to `default`; overridden in the base layer). Disabled states keep the default cursor.
 - **Server components by default**; `"use client"` only where interactivity demands it (shell internals, table filters, chat).
 - **Mobile = graceful degradation:** the table prunes columns by information priority (currency → title → method → date; contractor/amount/status always survive), the sidebar becomes a drawer, the chat panel a sheet.
@@ -129,19 +130,20 @@ shadcn/ui components are vendored into `src/components/ui/` (add more with `npx 
 
 **Done**
 
-- **Shell** — registry-driven sidebar (grouped sections, icon-rail collapse, `coming-soon` modules, search, support links, account card); header with the AI pill; foldable AI panel (responsive hybrid, cookie-persisted, sequenced pill/panel choreography).
+- **Shell** — registry-driven sidebar (grouped sections, icon-rail collapse, `coming-soon` modules, search, support links, account card) with polished collapse behavior: click-anywhere-to-expand on the collapsed rail, a full-height edge hover affordance, and a stateful "Open/Close sidebar" tooltip; header with the AI pill; foldable AI panel (responsive hybrid, cookie-persisted, sequenced pill/panel choreography).
+- **Chat panel** — word-by-word streaming replies (soft blur-in, duration-normalized), sparkle welcome state, "thinking" indicator, type-anywhere capture, jump-to-latest control, and a resizable panel width. Stubbed front-end (canned replies); the interaction layer is production-shaped.
 - **Module registry + contract**, and 3 live modules: **Dashboard** (stat cards + recent-invoices table), **Invoices** (status tabs, contractor search, sortable date, row selection, client pagination, column pruning), **Invoice detail** (summary cards, field grid, activity trail).
 - **Wayfinding** — shared `PageHeader` with the named-parent back link.
-- **Command palette (⌘/Ctrl+K)** — Quick actions / Recents / Actions, registry-derived, with a keycap footer. Three global shortcuts (`+K` palette, `+J` panel, `+B` sidebar), platform-correct modifier hints (`ModKbd`).
+- **Command palette (⌘/Ctrl+K)** — Quick actions / Recents / Actions, registry-derived, with a keycap footer. Three global shortcuts (`+K` palette, `+J` panel, `+B` sidebar), platform-correct modifier hints (`ModShortcut`).
 - **"New Payout" dialog** — from the list header CTA or the palette quick action (`?action=new-payout`).
 - **Design system** — tokens incl. status + brand-blue focus ring; Motion animation standard with `prefers-reduced-motion`; flat cards; `cursor: pointer` on interactive elements.
 - **Mobile** — sidebar drawer, chat sheet, table column pruning; verified at 375px.
 
 **Pending**
 
-- Chat stub polish (inhabited transcript, thinking pulse, staged reply reveal).
 - Dark-mode toggle (`next-themes`; token layer is already dark-ready).
 - README add-a-module rehearsal (build a hidden 4th module to verify the steps).
+- Wire the chat panel to a real streaming model API (the stub is shaped to swap in with minimal change).
 
 Deployed on Vercel — every push to `master` goes live.
 

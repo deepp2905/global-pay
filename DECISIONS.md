@@ -31,7 +31,7 @@ Knowledge transfer for all foundation decisions: what was chosen, what was consi
 
 ## D3. AI chat panel: Fully hidden when closed, header trigger + keyboard shortcut
 
-**Decision:** Panel fully hides when folded. Reopen affordances: persistent AI toggle button in the shell header (right-aligned) + keyboard shortcut (Cmd+J — unclaimed by browsers) + open/closed state persisted in localStorage.
+**Decision:** Panel fully hides when folded. Reopen affordances: persistent AI toggle button in the shell header (right-aligned) + keyboard shortcut (Cmd+J — unclaimed by browsers) + open/closed state persisted in a cookie (so the server renders the restored layout with no hydration flash, mirroring the shadcn sidebar pattern).
 
 **Rejected:** Collapsed 40px icon rail with a single icon.
 
@@ -89,12 +89,14 @@ Knowledge transfer for all foundation decisions: what was chosen, what was consi
 
 ## D8. Chat stub: Inhabited transcript + scoped animation
 
-**Decision:** Two static prior exchanges (so the panel looks inhabited in screenshots) + a three-dot pulse "thinking" indicator + staged reveal of a canned response (CSS transition or simple interval appending sentences).
+**Decision:** A sparkle "welcome" empty state (personalized greeting) + a "thinking" indicator + a staged reveal of a canned response (CSS transition or simple interval appending sentences).
 
 **Rejected:**
 
 - **Empty gray rectangle / bare composer** — wastes the most photogenic region of the app.
 - **Per-token streaming simulation** — animation polish here can quietly consume an hour; staged sentence reveal reads the same at a fraction of the cost.
+
+**Revised (2026-07-13):** Reversed the per-token rejection. With the shell finished ahead of the deadline, the time pressure that made staged sentence-reveal the right call no longer applied, and the chat panel is the app's most-demoed surface. Shipped a word-by-word streaming renderer (`StreamedText`) — each word fades in from a soft blur, per-word delay is duration-normalized (~0.8–3s total) with ±30% jitter, and only the latest reply streams. Also swapped the two static prior exchanges for the sparkle welcome state above, added type-anywhere capture, a jump-to-latest control, and a resizable panel. The original rationale still holds _under deadline_; this was a deliberate spend once the deadline was no longer binding. (Good walkthrough material: a documented decision that was consciously flipped when its constraint lifted.)
 
 ---
 
