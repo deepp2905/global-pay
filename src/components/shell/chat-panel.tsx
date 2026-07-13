@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowUp, Sparkles, X } from "lucide-react";
+import { ArrowUp, ChevronDown, Sparkles, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
@@ -93,23 +93,17 @@ const LOREM_REPLIES = [
   "Duis aute irure dolor in reprehenderit in voluptate velit esse. I can draft a new payout for you; just confirm the amount and currency.",
 ];
 
-const THINKING_MIN = 900;
-const THINKING_MAX = 2200;
-
-// Assistant greeting shown when the panel opens, before any exchange.
-const INTRO_MESSAGE: ChatMessage = {
-  id: "intro",
-  role: "assistant",
-  text: "Hi! I'm your payments assistant. How can I help you today?",
-};
+const THINKING_MIN = 4000;
+const THINKING_MAX = 7000;
 
 /**
  * Owns the mock chat thread: sending appends a user bubble, flips to a
  * "thinking" state, then after a randomized delay appends a canned AI reply.
- * Purely front-end — there is no model behind it. Seeded with an intro message.
+ * Purely front-end — there is no model behind it. Starts empty so the panel
+ * can show its sparkle welcome state until the first exchange.
  */
 function useChatThread() {
-  const [messages, setMessages] = React.useState<ChatMessage[]>([INTRO_MESSAGE]);
+  const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [thinking, setThinking] = React.useState(false);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -133,22 +127,109 @@ function useChatThread() {
   return { messages, thinking, send };
 }
 
-/** A single chat bubble — right-aligned for the user, left for the assistant. */
-function MessageBubble({ message }: { message: ChatMessage }) {
+/**
+ * Streams an assistant reply word by word with an LLM-like texture: each word
+ * fades in from a soft blur. Per-word delay is duration-normalized so the whole
+ * reply lands in ~0.8–3s regardless of length, with ±30% jitter so the rhythm
+ * is irregular like real token generation. Whitespace tokens emit instantly.
+ * `onProgress` fires per reveal so the caller can pin the scroll to the bottom.
+ */
+function StreamedText({ text, onProgress }: { text: string; onProgress?: () => void }) {
+  // Split into words + whitespace so spacing is preserved and emitted for free.
+  const tokens = React.useMemo(() => text.match(/\S+|\s+/g) ?? [], [text]);
+  const wordCount = React.useMemo(() => tokens.filter((t) => /\S/.test(t)).length, [tokens]);
+  const [revealed, setRevealed] = React.useState(0);
+
+  // Keep the latest progress callback without reading a ref during render.
+  const progressRef = React.useRef(onProgress);
+  React.useEffect(() => {
+    progressRef.current = onProgress;
+  });
+
+  React.useEffect(() => {
+    if (tokens.length === 0) return;
+    const baseDelay = Math.min(3000, Math.max(800, wordCount * 90)) / Math.max(1, wordCount);
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const step = (i: number) => {
+      if (cancelled || i >= tokens.length) return;
+      setRevealed(i + 1);
+      progressRef.current?.();
+      // Whitespace emits instantly; words carry the jittered per-word delay.
+      const isSpace = !/\S/.test(tokens[i]);
+      const delay = isSpace ? 0 : baseDelay * (0.7 + Math.random() * 0.6);
+      timer = setTimeout(() => step(i + 1), delay);
+    };
+    timer = setTimeout(() => step(0), 0);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [tokens, wordCount]);
+
+  return (
+    <span>
+      {tokens.slice(0, revealed).map((token, i) =>
+        /\S/.test(token) ? (
+          <motion.span
+            key={i}
+            initial={{ opacity: 0, filter: "blur(1px)" }}
+            animate={{ opacity: 1, filter: "blur(0px)" }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="inline-block"
+          >
+            {token}
+          </motion.span>
+        ) : (
+          <span key={i} style={{ whiteSpace: "pre-wrap" }}>
+            {token}
+          </span>
+        )
+      )}
+    </span>
+  );
+}
+
+/**
+ * A single message. The user's message is a right-aligned bubble; the
+ * assistant "speaks" as plain left-aligned text with no background (the
+ * ChatGPT/Claude convention). Only the newest assistant reply streams —
+ * older ones render statically so re-renders don't replay the animation.
+ */
+function MessageBubble({
+  message,
+  stream,
+  onProgress,
+}: {
+  message: ChatMessage;
+  stream?: boolean;
+  onProgress?: () => void;
+}) {
   const isUser = message.role === "user";
+
+  if (!isUser) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="text-sm whitespace-pre-wrap text-foreground"
+      >
+        {stream ? <StreamedText text={message.text} onProgress={onProgress} /> : message.text}
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className={cn("flex", isUser ? "justify-end" : "justify-start")}
+      className="flex justify-end"
     >
-      <div
-        className={cn(
-          "max-w-[85%] rounded-2xl px-3.5 py-2 text-sm",
-          isUser ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
-        )}
-      >
+      <div className="max-w-[85%] rounded-2xl bg-primary px-3.5 py-2 text-sm text-primary-foreground">
         {message.text}
       </div>
     </motion.div>
@@ -171,9 +252,61 @@ function ThinkingRow() {
   );
 }
 
+/**
+ * Welcome state shown before the first exchange: a sparkle plus a personalized
+ * greeting, left-aligned. Fades in softly on mount.
+ */
+function WelcomeState() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="flex flex-1 flex-col items-start justify-center gap-3 px-2 text-left"
+    >
+      <Sparkles className="size-7 text-foreground" />
+      <div className="space-y-1">
+        <h2 className="text-base font-medium text-foreground">Welcome Deep! How can I help you today?</h2>
+        <p className="text-sm text-muted-foreground">Ask me anything about your payments, invoices, or payouts.</p>
+      </div>
+    </motion.div>
+  );
+}
+
 /** Composer: auto-growing textarea with the send control pinned inside it. */
 function ChatComposer({ onSend, disabled }: { onSend: (text: string) => void; disabled?: boolean }) {
   const [value, setValue] = React.useState("");
+
+  // Type-anywhere capture: any printable key pressed while nothing else is
+  // focused funnels into the draft and focuses the composer (Spotlight-style).
+  // Ignores modifier combos, multi-char keys, and typing in other fields; off
+  // while the assistant is busy.
+  React.useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (disabled) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key.length !== 1) return; // multi-char keys (Enter, Tab, arrows…)
+
+      const active = document.activeElement as HTMLElement | null;
+      if (active) {
+        const tag = active.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || active.isContentEditable) return;
+      }
+
+      const input = document.getElementById("chat-composer-input") as HTMLTextAreaElement | null;
+      if (!input) return;
+      event.preventDefault();
+      setValue((prev) => prev + event.key);
+      input.focus();
+      // Caret to the end after the value updates.
+      requestAnimationFrame(() => {
+        const end = input.value.length;
+        input.setSelectionRange(end, end);
+      });
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [disabled]);
 
   function submit() {
     if (!value.trim()) return;
@@ -204,14 +337,14 @@ function ChatComposer({ onSend, disabled }: { onSend: (text: string) => void; di
           placeholder="Message the assistant…"
           aria-label="Message the AI assistant"
           rows={1}
-          className="field-sizing-content max-h-40 w-full resize-none bg-transparent px-3.5 py-2.5 pr-12 text-sm outline-none placeholder:text-muted-foreground"
+          className="field-sizing-content min-h-16 max-h-40 w-full resize-none bg-transparent px-3.5 py-3 pr-13 text-sm outline-none placeholder:text-muted-foreground"
         />
         {/* absolute bottom pin keeps the button in place as the field grows */}
         <Button
           type="submit"
-          size="icon-xs"
+          size="icon-sm"
           disabled={!value.trim() || disabled}
-          className="absolute right-2 bottom-2 rounded-full"
+          className="absolute right-1.5 bottom-1.5 rounded-full"
         >
           <ArrowUp />
           <span className="sr-only">Send message</span>
@@ -221,31 +354,120 @@ function ChatComposer({ onSend, disabled }: { onSend: (text: string) => void; di
   );
 }
 
+// Distance (px) from the bottom past which the "jump to latest" button appears.
+const JUMP_THRESHOLD = 16;
+
 /** Transcript + composer, shared by every panel presentation. */
 function ChatPanelBody() {
   const { messages, thinking, send } = useChatThread();
   const bottomRef = React.useRef<HTMLDivElement>(null);
+  const viewportRef = React.useRef<HTMLDivElement | null>(null);
+  const [atBottom, setAtBottom] = React.useState(true);
+  // Live mirror of atBottom for closures (stream pin) that don't re-render.
+  const atBottomRef = React.useRef(true);
+  const hasExchange = messages.length > 0;
 
-  // Keep the newest message / the thinking row in view.
+  // The last assistant message is the only one that streams; a set of ids that
+  // have already streamed keeps older replies static across re-renders. Which
+  // id is currently streaming is tracked in state (not read from a ref during
+  // render) and settled the first time a fresh assistant reply arrives.
+  const streamedIds = React.useRef<Set<string>>(new Set());
+  const [streamingId, setStreamingId] = React.useState<string | null>(null);
+  const lastMessage = messages[messages.length - 1];
+
   React.useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    if (lastMessage?.role === "assistant" && !streamedIds.current.has(lastMessage.id)) {
+      streamedIds.current.add(lastMessage.id);
+      setStreamingId(lastMessage.id);
+    }
+  }, [lastMessage]);
+
+  const scrollToBottom = React.useCallback((behavior: ScrollBehavior = "smooth") => {
+    bottomRef.current?.scrollIntoView({ behavior, block: "end" });
+  }, []);
+
+  // Grab the Radix viewport once so we can measure scroll distance from bottom.
+  const measure = React.useCallback(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const next = distance <= JUMP_THRESHOLD;
+    atBottomRef.current = next;
+    setAtBottom(next);
+  }, []);
+
+  React.useEffect(() => {
+    const el = document
+      .getElementById("chat-panel-scroll")
+      ?.querySelector<HTMLDivElement>("[data-slot=scroll-area-viewport]");
+    viewportRef.current = el ?? null;
+    if (!el) return;
+    el.addEventListener("scroll", measure);
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    measure();
+    return () => {
+      el.removeEventListener("scroll", measure);
+      ro.disconnect();
+    };
+  }, [measure]);
+
+  // Keep the newest message / the thinking row in view when we're already at
+  // the bottom (don't yank the user back down if they've scrolled up to read).
+  React.useEffect(() => {
+    if (atBottom) scrollToBottom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, thinking]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="relative flex min-h-0 flex-1 flex-col">
       {/* Bubbles anchor to the bottom: override Radix's display:table inner
           wrapper to a full-height flex box so the message column can push its
           content down — a short thread sits at the bottom and only scrolls once
           it overflows. */}
-      <ScrollArea className="min-h-0 flex-1 *:data-[slot=scroll-area-viewport]:*:flex! *:data-[slot=scroll-area-viewport]:*:h-full">
+      <ScrollArea
+        id="chat-panel-scroll"
+        className="min-h-0 flex-1 *:data-[slot=scroll-area-viewport]:*:flex! *:data-[slot=scroll-area-viewport]:*:h-full"
+      >
         <div className="flex min-h-full flex-1 flex-col justify-end gap-4 p-4">
-          {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
+          {!hasExchange && !thinking ? (
+            <WelcomeState />
+          ) : (
+            messages.map((message) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                stream={message.id === streamingId}
+                onProgress={() => {
+                  if (atBottomRef.current) scrollToBottom("auto");
+                }}
+              />
+            ))
+          )}
           <AnimatePresence>{thinking && <ThinkingRow key="thinking" />}</AnimatePresence>
           <div ref={bottomRef} />
         </div>
       </ScrollArea>
+
+      {/* Jump-to-latest: a dark chevron floating above the composer, shown only
+          while scrolled up from the bottom. */}
+      <AnimatePresence>
+        {!atBottom && (
+          <motion.button
+            type="button"
+            onClick={() => scrollToBottom()}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute bottom-20 left-1/2 z-10 flex size-9 -translate-x-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md"
+            aria-label="Jump to latest message"
+          >
+            <ChevronDown className="size-4" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <ChatComposer onSend={send} disabled={thinking} />
     </div>
   );
