@@ -150,10 +150,16 @@ export function InvoicesTable() {
           {pageRows.map((invoice) => (
             <TableRow
               key={invoice.id}
-              className="cursor-pointer"
+              role="button"
+              tabIndex={0}
+              aria-label={`Open invoice ${invoice.id}`}
+              className="cursor-pointer outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
               onClick={() => openInvoice(invoice)}
               onKeyDown={(event) => {
-                if (event.key === "Enter" && event.target === event.currentTarget) openInvoice(invoice);
+                if ((event.key === "Enter" || event.key === " ") && event.target === event.currentTarget) {
+                  event.preventDefault();
+                  openInvoice(invoice);
+                }
               }}
             >
               <TableCell onClick={(event) => event.stopPropagation()}>

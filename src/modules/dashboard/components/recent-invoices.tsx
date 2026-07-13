@@ -37,8 +37,17 @@ export function RecentInvoices() {
             {recent.map((invoice) => (
               <TableRow
                 key={invoice.id}
-                className="cursor-pointer"
+                role="button"
+                tabIndex={0}
+                aria-label={`Open invoice ${invoice.id}`}
+                className="cursor-pointer outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
                 onClick={() => router.push(`/invoices/${invoice.id}`)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    router.push(`/invoices/${invoice.id}`);
+                  }
+                }}
               >
                 <TableCell>
                   <span className="flex items-center gap-2.5 font-medium">

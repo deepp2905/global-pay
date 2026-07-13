@@ -337,7 +337,7 @@ function ChatComposer({ onSend, disabled }: { onSend: (text: string) => void; di
           placeholder="Message the assistant…"
           aria-label="Message the AI assistant"
           rows={1}
-          className="field-sizing-content min-h-16 max-h-40 w-full resize-none bg-transparent px-3.5 py-3 pr-13 text-sm outline-none placeholder:text-muted-foreground"
+          className="field-sizing-content max-h-40 min-h-16 w-full resize-none bg-transparent px-3.5 py-3 pr-13 text-sm outline-none placeholder:text-muted-foreground"
         />
         {/* absolute bottom pin keeps the button in place as the field grows */}
         <Button

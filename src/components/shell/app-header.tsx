@@ -44,7 +44,7 @@ export function AppHeader() {
           variant="outline"
           size="sm"
           onClick={() => setSearchOpen(true)}
-          className="w-56 justify-start gap-2 rounded-full px-3 font-normal text-muted-foreground max-sm:w-8 max-sm:px-0 max-sm:justify-center"
+          className="w-56 justify-start gap-2 rounded-full px-3 font-normal text-muted-foreground max-sm:w-8 max-sm:justify-center max-sm:px-0"
         >
           <Search className="text-muted-foreground" />
           <span className="hidden truncate sm:inline">Search anything</span>
