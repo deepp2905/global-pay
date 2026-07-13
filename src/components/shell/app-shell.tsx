@@ -27,7 +27,7 @@ export function AppShell({
   return (
     // reducedMotion="user" disables Motion transforms for prefers-reduced-motion users.
     <MotionConfig reducedMotion="user">
-      <TooltipProvider>
+      <TooltipProvider delayDuration={400}>
         <ChatPanelProvider defaultOpen={chatDefaultOpen}>
           <CommandPaletteProvider>
             <SidebarProvider defaultOpen={sidebarDefaultOpen}>
