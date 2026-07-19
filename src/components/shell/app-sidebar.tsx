@@ -24,6 +24,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ModShortcut } from "@/components/shell/mod-shortcut";
 import { markChromeNavigation } from "@/components/shell/route-transition";
+import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { getModuleGroups } from "@/modules";
 import type { ModuleManifest } from "@/modules";
 
@@ -231,6 +232,9 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="pointer-events-none relative z-10">
         <SidebarUserItem />
+        <div className="px-1 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          <ThemeToggle />
+        </div>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

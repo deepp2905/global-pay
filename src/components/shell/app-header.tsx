@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ModShortcut } from "@/components/shell/mod-shortcut";
@@ -32,7 +31,6 @@ export function AppHeader() {
     // content scrolls.
     <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
       <SidebarTrigger className="-ml-1.5 md:hidden" />
-      <Separator orientation="vertical" className="!h-4 md:hidden" />
       {/* Redundant on desktop (sidebar active state + page h1 both name the
           module); kept on mobile where the sidebar is hidden. */}
       <span className="text-sm font-medium md:hidden">{activeModule?.label}</span>

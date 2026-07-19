@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -20,8 +21,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("h-full", "antialiased", geistMono.variable, "font-sans", inter.variable)}>
-      <body className="flex min-h-full flex-col">{children}</body>
+    // suppressHydrationWarning: next-themes sets the theme class on <html>
+    // before hydration, so the server and client markup intentionally differ.
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("h-full", "antialiased", geistMono.variable, "font-sans", inter.variable)}
+    >
+      <body className="flex min-h-full flex-col">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
