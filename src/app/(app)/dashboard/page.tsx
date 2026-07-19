@@ -49,14 +49,14 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-8">
       <PageHeader title={dashboardManifest.label} description="Cross-border payout activity at a glance" />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         {getStats().map((stat) => (
           <Card key={stat.label} className="rounded-xl border ring-0">
             <CardContent className="flex flex-col gap-4">
               <stat.icon className="size-5 text-primary" />
               <div className="flex flex-col gap-1">
                 <p className="text-2xl font-semibold tracking-tight tabular-nums">{stat.value}</p>
-                <p className="text-sm whitespace-nowrap text-muted-foreground">{stat.label}</p>
+                <p className="text-sm text-balance text-muted-foreground">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
