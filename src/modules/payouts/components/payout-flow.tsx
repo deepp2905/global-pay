@@ -8,6 +8,7 @@ import { PayoutDetailsStep } from "@/modules/payouts/components/payout-details-s
 import { PayoutReceiptStep } from "@/modules/payouts/components/payout-receipt-step";
 import { PayoutReviewStep } from "@/modules/payouts/components/payout-review-step";
 import { PAYOUT_STEPS, usePayoutFlow } from "@/modules/payouts/use-payout-flow";
+import { cn } from "@/lib/utils";
 
 const COPY = {
   details: { title: "Payout Details", description: "Pay a contractor. Review every figure before anything moves." },
@@ -63,12 +64,16 @@ export function PayoutFlow({ invoiceId }: { invoiceId?: string } = {}) {
         }
       />
 
-
       {/* mode="wait" so the outgoing step clears before the next folds in —
-          overlapping two full-height forms would shift the page under the cursor. */}
+          overlapping two full-height forms would shift the page under the cursor.
+          The extra top margin applies to the form step only: it separates the
+          header from a run of labelled fields at the same 40px the fields use
+          between themselves. Review and receipt are card stacks, where the
+          container's own gap already reads as separation. */}
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={step}
+          className={cn(step === "details" && "mt-2")}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}

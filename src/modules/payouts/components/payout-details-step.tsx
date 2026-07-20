@@ -33,20 +33,29 @@ export function PayoutDetailsStep({ flow }: { flow: ReturnType<typeof usePayoutF
   const { draft, profile, currency, totals, error, update, selectContractor, toReview } = flow;
 
   return (
+    // Spacing vocabulary for the whole step: 8px binds a label to its field,
+    // 6px binds a caption to the field it describes, 40px separates sections,
+    // and 56px sets the submit apart. Before this, label→field (12px) and
+    // section→section (32px) were close enough that nothing read as grouped.
     <form
-      className="flex flex-col gap-8"
+      className="flex flex-col gap-10"
       onSubmit={(event) => {
         event.preventDefault();
         toReview();
       }}
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="payout-contractor">Select Contractor</Label>
         <ContractorCombobox id="payout-contractor" value={draft.contractor} onSelect={selectContractor} />
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-2">
+        {/* The 36px toggle is taller than the 14px label, so this row's box
+            overhangs the label text by ~11px top and bottom. -my-2.5 pulls
+            that overhang out of the flow, leaving the *label* 8px off its
+            field and a true 40px section gap above — matching every other
+            group, which pair a bare label with its control. */}
+        <div className="-my-2.5 flex flex-wrap items-center justify-between gap-3">
           <Label htmlFor={draft.mode === "hourly" ? "payout-rate" : "payout-fixed"}>Amount</Label>
           <Tabs value={draft.mode} onValueChange={(value) => update("mode", value as AmountMode)}>
             <TabsList>
@@ -87,8 +96,10 @@ export function PayoutDetailsStep({ flow }: { flow: ReturnType<typeof usePayoutF
           />
         )}
 
-        {/* The conversion line: what it costs you, and what actually lands. */}
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-muted-foreground">
+        {/* The conversion line: what it costs you, and what actually lands.
+            -mt-0.5 pulls it to ~6px off the field — it's a readout of that
+            input, not a sibling control, so it binds tighter than a label. */}
+        <div className="-mt-0.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <span className="tabular-nums">
             {draft.mode === "hourly" && totals.subtotal > 0
               ? `Total = ${formatCurrency(totals.subtotal, "USD")}`
@@ -102,8 +113,12 @@ export function PayoutDetailsStep({ flow }: { flow: ReturnType<typeof usePayoutF
         </div>
       </div>
 
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-3 text-sm font-medium">Payment Method</legend>
+      {/* legend is out of flow, so the gap to the cards comes from its own mb —
+          8px, matching every other label→field pair. It previously carried
+          mb-3 *plus* the fieldset gap, landing at 32px: a label floating a
+          full section-gap from the thing it names. */}
+      <fieldset className="flex flex-col">
+        <legend className="mb-2 text-sm font-medium">Payment Method</legend>
         <div className="grid gap-3 sm:grid-cols-3">
           {METHOD_OPTIONS.map((option) => {
             const Icon = methodIcons[option.method];
@@ -140,7 +155,7 @@ export function PayoutDetailsStep({ flow }: { flow: ReturnType<typeof usePayoutF
         </div>
       </fieldset>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="payout-note">
           Note to contractor <span className="font-normal text-muted-foreground">(optional)</span>
         </Label>
@@ -153,7 +168,10 @@ export function PayoutDetailsStep({ flow }: { flow: ReturnType<typeof usePayoutF
         />
       </div>
 
-      <div className="flex flex-col gap-3">
+      {/* mt-4 on top of the form's gap-10 puts 56px above the submit — the one
+          control that leaves this page needs more air than the gap between two
+          peer fields, which is all it had before. */}
+      <div className="mt-4 flex flex-col gap-3">
         {/* Explains the block rather than leaving a dead disabled button. */}
         {error && (
           <p role="alert" className="flex items-center gap-2 text-sm text-destructive">
