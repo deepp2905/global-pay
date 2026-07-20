@@ -537,7 +537,9 @@ export function ChatPanel() {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="right"
-          className="w-full p-0 sm:max-w-sm"
+          // Full-bleed: no max-width cap, so the sheet spans the device across
+          // the whole mobile range (the sm: cap otherwise bit at 640–767px).
+          className="w-full max-w-none p-0"
           onOpenAutoFocus={(event) => {
             // Focus the composer instead of Radix's default first focusable.
             event.preventDefault();

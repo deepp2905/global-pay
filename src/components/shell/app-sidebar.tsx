@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown, Headset, MessageSquareText, PanelLeft, Settings } from "lucide-react";
+import { ChevronsUpDown, Headset, MessageSquareText, PanelLeft, Settings, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -148,8 +148,25 @@ function SidebarBackgroundToggle() {
 
 /** Collapse toggle in the sidebar header: a panel icon with a roomy rectangular hit area. */
 function SidebarCollapseButton() {
-  const { toggleSidebar, isMobile, state } = useSidebar();
-  if (isMobile) return null;
+  const { toggleSidebar, isMobile, state, setOpenMobile } = useSidebar();
+
+  // The mobile drawer is full-bleed, so there's no backdrop left to tap for
+  // dismissal — it needs an explicit close control or it's a trap. No tooltip:
+  // hover intent is meaningless on touch.
+  if (isMobile) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenMobile(false)}
+        aria-label="Close navigation"
+        className="h-8 shrink-0 rounded-lg px-2 text-sidebar-foreground"
+      >
+        <X />
+        <span className="sr-only">Close navigation</span>
+      </Button>
+    );
+  }
 
   const label = state === "collapsed" ? "Open sidebar" : "Close sidebar";
 
