@@ -132,10 +132,10 @@ shadcn/ui components are vendored into `src/components/ui/` (add more with `npx 
 
 - **Shell** — registry-driven sidebar (grouped sections, icon-rail collapse, `coming-soon` modules, search, support links, account card) with polished collapse behavior: click-anywhere-to-expand on the collapsed rail, a full-height edge hover affordance, and a stateful "Open/Close sidebar" tooltip; header with the AI pill; foldable AI panel (responsive hybrid, cookie-persisted, sequenced pill/panel choreography).
 - **Chat panel** — word-by-word streaming replies (soft blur-in, duration-normalized), sparkle welcome state, "thinking" indicator, type-anywhere capture, jump-to-latest control, and a resizable panel width. Stubbed front-end (canned replies); the interaction layer is production-shaped.
-- **Module registry + contract**, and 3 live modules: **Dashboard** (stat cards + recent-invoices table), **Invoices** (status tabs, contractor search, sortable date, row selection, client pagination, column pruning), **Invoice detail** (summary cards, field grid, activity trail).
+- **Module registry + contract**, and 4 live modules: **Dashboard** (stat cards + recent-invoices table), **Invoices** (status tabs, contractor search, sortable date, row selection, client pagination, column pruning), **Invoice detail** (summary cards, field grid, activity trail), **Payouts** (three-step send flow).
 - **Wayfinding** — shared `PageHeader` with the named-parent back link.
 - **Command palette (⌘/Ctrl+K)** — Quick actions / Recents / Actions, registry-derived, with a keycap footer. Three global shortcuts (`+K` palette, `+J` panel, `+B` sidebar), platform-correct modifier hints (`ModShortcut`).
-- **"New Payout" dialog** — from the list header CTA or the palette quick action (`?action=new-payout`).
+- **Payout flow (`/payouts`)** — three steps on one route (Details → Review → Initiated): hourly/fixed amount toggle, live FX conversion, method cards with per-rail fees, a fee breakdown before sending, and a settlement timeline after. Validated on contractor, amount, rail availability, and wallet balance. Reached from the list header CTA, the invoice-detail footer, or the palette quick action. See D11.
 - **Design system** — tokens incl. status + brand-blue focus ring; Motion animation standard with `prefers-reduced-motion`; flat cards; `cursor: pointer` on interactive elements.
 - **Mobile** — sidebar drawer, chat sheet, table column pruning; verified at 375px.
 

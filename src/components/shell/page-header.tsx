@@ -15,23 +15,33 @@ export function PageHeader({
 }: {
   title?: React.ReactNode;
   description?: string;
-  back?: { href: string; label: string };
+  /**
+   * Deep views pass a parent link. Multi-step flows that live on one route
+   * pass `onBack` instead — same affordance, but it walks the step back
+   * rather than navigating (see the payout flow).
+   */
+  back?: { href?: string; label: string; onBack?: () => void };
   actions?: React.ReactNode;
 }) {
   const hasTitleBlock = title != null || description != null || actions != null;
+  const backCls =
+    "inline-flex w-fit cursor-pointer items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground";
   return (
     // gap-2 sets the back link apart from the title; the title/description
     // group keeps a tight gap-1 so the caption stays bound to the title.
     <div className="flex flex-col gap-2">
-      {back && (
-        <Link
-          href={back.href}
-          className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" />
-          {back.label}
-        </Link>
-      )}
+      {back &&
+        (back.onBack ? (
+          <button type="button" onClick={back.onBack} className={backCls}>
+            <ArrowLeft className="size-4" />
+            {back.label}
+          </button>
+        ) : (
+          <Link href={back.href ?? "#"} className={backCls}>
+            <ArrowLeft className="size-4" />
+            {back.label}
+          </Link>
+        ))}
       {hasTitleBlock && (
         <div className="flex flex-col gap-1">
           <div className="flex flex-wrap items-center justify-between gap-3">

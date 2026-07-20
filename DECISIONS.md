@@ -12,7 +12,7 @@ Knowledge transfer for all foundation decisions: what was chosen, what was consi
 
 **Rationale:** The brief leaves theming open ("name and theme them however feels right"). Domain-real mock data (invoice IDs, contractor names, currencies, payout statuses) makes every screen read as a product rather than a template, and the domain aligns with prior fintech experience so mock data instincts are already warm. Picked in the first 30 minutes so it flavors everything downstream.
 
-**Scope trim:** "Create payout" is a **dialog/sheet** launched from the invoice list header, not a page. The brief requires exactly one deep view (list → detail); a second nested flow costs time and proves nothing new. A shadcn dialog with a disabled-on-submit stub covers it.
+**Scope trim:** ~~"Create payout" is a **dialog/sheet** launched from the invoice list header, not a page. The brief requires exactly one deep view (list → detail); a second nested flow costs time and proves nothing new. A shadcn dialog with a disabled-on-submit stub covers it.~~ **Reversed post-submission — see D11.** The trim was right under the 3-hour constraint, but a dialog can't hold a review step, and the review is the point of a payout flow.
 
 ---
 
@@ -115,6 +115,24 @@ Knowledge transfer for all foundation decisions: what was chosen, what was consi
 **Rationale:** The hard constraint is a working Vercel link in 3 hours. Deploy failures (env issues, CI-only build errors) at hour 2.5 mean missing the deadline with a better local app. Deploying first converts the deadline risk to near zero and makes commit hygiene visible.
 
 **Commit hygiene:** Readable sequence of real commits throughout. A single squashed "final" commit is free negative signal in a shared repo.
+
+---
+
+## D11. Payout flow: A three-step flow on one route (reverses the D1 dialog trim)
+
+**Decision:** The payout flow is a real surface at `/payouts` — Details → Review → Initiated — with all three steps on a single route, swapping in place. This supersedes the D1 scope trim that made "create payout" a dialog, and lights up the Payouts module (previously `coming-soon`).
+
+**Rejected:**
+
+- **Keeping the dialog.** A modal can hold a form, but it can't hold a *review* step. The moment before money moves is the one screen that has to be unhurried and fully legible; a 448px dialog fights that.
+- **Three separate routes** (`/payouts`, `/payouts/review`, `/payouts/confirm`). Splitting the draft across routes forces either the draft into the URL — where a free-text note and an editable `rate=` param don't belong, and where payout details leak into browser history — or a context provider whose state evaporates on refresh, requiring each downstream route to redirect back to step one anyway. One route owns the draft with no such seam.
+- **Breadcrumbs or a segmented stepper for progress.** Breadcrumbs express a hierarchy you can navigate freely; this is a gated linear sequence, and a clickable "Details" crumb on the receipt would imply you can edit a payout that has already been sent. A segmented stepper over-signals for three steps that are each clearly titled. A plain "Step 1 of 2" caption carries the orientation, and the receipt drops it entirely — nothing is left to progress through.
+
+**Rationale:** Step transitions become a deliberate `PANEL_FOLD` rather than a route change, and the back affordance stays honest at every step: "← Invoices" on step one is a real hierarchical link (D4); "← Edit Details" on review walks the step back and preserves the draft; the receipt offers no back link at all, because the payout is terminal — the way out is an explicit "New payout" that resets the draft.
+
+**Numbers:** All figures derive from one rate table and one fee constant in `modules/payouts/data.ts`. The reference mockups had drifted (the same $1,200 showed three different INR totals, and a method card's fee contradicted the review's breakdown), so a single `getTotals()` is what keeps the three steps from disagreeing. Fees are charged to the payer on top of the subtotal, so the contractor receives the full amount entered.
+
+**Validation:** The mockups showed no error states. A payout flow needs them: the draft is gated on contractor, non-zero amount, an available rail, and sufficient balance, and the block is explained in-line rather than left as a dead disabled button.
 
 ---
 

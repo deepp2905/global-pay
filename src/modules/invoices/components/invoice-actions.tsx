@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, Download, RotateCcw } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import type { InvoiceStatus } from "@/modules/invoices/data";
@@ -14,7 +14,6 @@ import type { InvoiceStatus } from "@/modules/invoices/data";
  * below the card so page content never shows through as it scrolls under it.
  */
 export function InvoiceActions({ status, usdLabel }: { status: InvoiceStatus; usdLabel: string }) {
-  const router = useRouter();
   const isPaid = status === "paid";
 
   return (
@@ -35,14 +34,18 @@ export function InvoiceActions({ status, usdLabel }: { status: InvoiceStatus; us
             Download invoice
           </Button>
         ) : status === "failed" ? (
-          <Button onClick={() => router.push("/invoices?action=new-payout")}>
-            <RotateCcw data-icon="inline-start" />
-            Retry payout
+          <Button asChild>
+            <Link href="/payouts">
+              <RotateCcw data-icon="inline-start" />
+              Retry payout
+            </Link>
           </Button>
         ) : (
-          <Button onClick={() => router.push("/invoices?action=new-payout")}>
-            Continue to pay
-            <ArrowRight data-icon="inline-end" />
+          <Button asChild>
+            <Link href="/payouts">
+              Continue to pay
+              <ArrowRight data-icon="inline-end" />
+            </Link>
           </Button>
         )}
       </div>

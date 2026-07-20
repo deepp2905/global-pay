@@ -1,7 +1,9 @@
-import { BanknoteArrowUp, ReceiptText } from "lucide-react";
+import { ReceiptText } from "lucide-react";
 
 import type { ModuleManifest } from "@/modules/types";
 
+// The "New Payout" quick action moved to the payouts manifest when the flow
+// became a real route — the verb belongs to the module that owns the surface.
 export const invoicesManifest: ModuleManifest = {
   id: "invoices",
   label: "Invoices",
@@ -9,12 +11,4 @@ export const invoicesManifest: ModuleManifest = {
   href: "/invoices",
   group: "operations",
   description: "Contractor invoices and payout states",
-  quickActions: [
-    {
-      id: "new-payout",
-      label: "New Payout",
-      icon: BanknoteArrowUp,
-      href: "/invoices?action=new-payout",
-    },
-  ],
 };

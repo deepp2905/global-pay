@@ -604,3 +604,41 @@ export function getInvoice(id: string) {
 export function getContractors() {
   return [...new Set(invoices.map((i) => i.contractor))].sort();
 }
+
+export interface ContractorProfile {
+  name: string;
+  title: string;
+  country: string;
+  /** Currency this contractor has historically been paid in. */
+  currency: string;
+  /** Rail they were last paid over, used to preselect the payout method. */
+  method: PaymentMethod;
+}
+
+/**
+ * Contractor roster derived from their most recent invoice — the payout flow
+ * needs title/country/currency per person, not just a name. Ledger rows are
+ * the only source of contractor identity here (no backend), so "most recent
+ * invoice wins" keeps the profile consistent with what the table shows.
+ */
+export function getContractorProfiles(): ContractorProfile[] {
+  const latest = new Map<string, Invoice>();
+  for (const invoice of invoices) {
+    const seen = latest.get(invoice.contractor);
+    if (!seen || invoice.date > seen.date) latest.set(invoice.contractor, invoice);
+  }
+
+  return [...latest.values()]
+    .map((invoice) => ({
+      name: invoice.contractor,
+      title: invoice.title,
+      country: invoice.country,
+      currency: invoice.currency,
+      method: invoice.method,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function getContractorProfile(name: string) {
+  return getContractorProfiles().find((profile) => profile.name === name);
+}

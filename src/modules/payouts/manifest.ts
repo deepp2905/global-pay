@@ -1,4 +1,4 @@
-import { Banknote } from "lucide-react";
+import { Banknote, BanknoteArrowUp } from "lucide-react";
 
 import type { ModuleManifest } from "@/modules/types";
 
@@ -8,6 +8,13 @@ export const payoutsManifest: ModuleManifest = {
   icon: Banknote,
   href: "/payouts",
   group: "operations",
-  description: "Scheduled and completed payout runs",
-  status: "coming-soon",
+  description: "Send a payout to a contractor",
+  quickActions: [
+    {
+      id: "new-payout",
+      label: "New Payout",
+      icon: BanknoteArrowUp,
+      href: "/payouts",
+    },
+  ],
 };
