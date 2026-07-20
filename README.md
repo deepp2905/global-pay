@@ -136,7 +136,7 @@ shadcn/ui components are vendored into `src/components/ui/` (add more with `npx 
 - **Wayfinding** — shared `PageHeader` with the named-parent back link.
 - **Command palette (⌘/Ctrl+K)** — Quick actions / Recents / Actions, registry-derived, with a keycap footer. Three global shortcuts (`+K` palette, `+J` panel, `+B` sidebar), platform-correct modifier hints (`ModShortcut`).
 - **Payout flow (`/payouts`)** — three steps on one route (Details → Review → Initiated): searchable contractor combobox, hourly/fixed amount toggle, live FX conversion, method cards with per-rail fees, a fee breakdown before sending, and a settlement timeline after. Validated on contractor, amount, rail availability, and wallet balance. Reached from the list header CTA, the invoice-detail footer, or the palette quick action. See D11.
-- **Paying an invoice** — `?invoice=<id>` opens the flow straight on review with the billed figure loaded, where the invoice's amount and currency are authoritative (you pay what was billed). Pending and failed rows expose an inline Pay/Retry shortcut; the row itself still opens the detail page. See D12.
+- **Paying an invoice** — `?invoice=<id>` opens the flow straight on review with the billed figure loaded, where the invoice's amount and currency are authoritative (you pay what was billed). Reached from the invoice detail page's status-driven footer; every table row opens that page. See D12.
 - **Design system** — tokens incl. status + brand-blue focus ring; Motion animation standard with `prefers-reduced-motion`; flat cards; `cursor: pointer` on interactive elements.
 - **Mobile** — sidebar drawer, chat sheet, table column pruning; verified at 375px.
 

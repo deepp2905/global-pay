@@ -11,8 +11,8 @@ import { cn } from "@/lib/utils";
 
 const THEMES = [
   { value: "light", label: "Light", icon: Sun },
-  { value: "system", label: "System", icon: Monitor },
   { value: "dark", label: "Dark", icon: Moon },
+  { value: "system", label: "System", icon: Monitor },
 ] as const;
 
 /** Matches the shell's panel/presence vocabulary (PANEL_FOLD) rather than the

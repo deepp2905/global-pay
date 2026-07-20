@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { ArrowUpDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -138,15 +137,12 @@ export function InvoicesTable() {
                 </span>
               </button>
             </TableHead>
-            <TableHead className="w-px">
-              <span className="sr-only">Actions</span>
-            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {pageRows.length === 0 && (
             <TableRow>
-              <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+              <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                 No invoices match the current filters.
               </TableCell>
             </TableRow>
@@ -192,21 +188,6 @@ export function InvoicesTable() {
               </TableCell>
               <TableCell className="hidden text-muted-foreground tabular-nums sm:table-cell">
                 {formatDate(invoice.date)}
-              </TableCell>
-              {/* Shortcut straight to review for unsettled invoices. The row
-                  itself still opens the detail page, so this is an addition to
-                  the navigation model, not a replacement for it. */}
-              <TableCell className="w-px" onClick={(event) => event.stopPropagation()}>
-                {(invoice.status === "pending" || invoice.status === "failed") && (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link
-                      href={`/payouts?invoice=${encodeURIComponent(invoice.id)}`}
-                      aria-label={`Pay invoice ${invoice.id}`}
-                    >
-                      {invoice.status === "failed" ? "Retry" : "Pay"}
-                    </Link>
-                  </Button>
-                )}
               </TableCell>
             </TableRow>
           ))}

@@ -89,10 +89,13 @@ export function ContractorCombobox({
   }
 
   const list = (
+    // Padding on all four sides: in the selected state the search field above
+    // supplies the top gap, but the inline list has nothing above it, so
+    // without pt the first row butts against the surface edge.
     // max-h lands on a row boundary (4.5 rows of 62px + padding) so the cut
     // falls mid-row on purpose: a half-visible row reads as "more below",
     // where a clean edge reads as the end of the list.
-    <CommandList className="max-h-[302px] scroll-py-1.5 px-1.5 pb-1.5">
+    <CommandList className="max-h-[302px] scroll-py-1.5 p-1.5">
       <CommandEmpty className="text-muted-foreground">No contractors found.</CommandEmpty>
       {contractors.map((contractor) => (
         <CommandItem
@@ -225,8 +228,10 @@ export function ContractorCombobox({
       <PopoverContent align="start" sideOffset={6} className={contentCls}>
         <Command className="rounded-xl p-0">
           {/* Search echoes the trigger's radius one step in (lg), not the
-              palette's pill — it belongs to the surface it drops out of. */}
-          <div className="p-1.5 [&_[data-slot=input-group]]:rounded-lg">
+              palette's pill — it belongs to the surface it drops out of.
+              No pb: the list below carries its own pt, and stacking both
+              would double the gap between the field and the first row. */}
+          <div className="p-1.5 pb-0 [&_[data-slot=input-group]]:rounded-lg">
             <CommandInput placeholder="Search contractors…" />
           </div>
           {list}
