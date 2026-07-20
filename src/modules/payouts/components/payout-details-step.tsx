@@ -50,12 +50,14 @@ export function PayoutDetailsStep({ flow }: { flow: ReturnType<typeof usePayoutF
       </div>
 
       <div className="flex flex-col gap-2">
-        {/* The 36px toggle is taller than the 14px label, so this row's box
-            overhangs the label text by ~11px top and bottom. -my-2.5 pulls
-            that overhang out of the flow, leaving the *label* 8px off its
-            field and a true 40px section gap above — matching every other
-            group, which pair a bare label with its control. */}
-        <div className="-my-2.5 flex flex-wrap items-center justify-between gap-3">
+        {/* The 36px toggle is taller than the 14px label, so the row overhangs
+            the label text by ~11px on each side. -mt-2.5 trims the top so the
+            section gap above reads as 40px like the others, but the bottom is
+            left in flow: pulling it too (the earlier -my-2.5) let the pill
+            collide with the field 2px below it. The label ends up slightly
+            further from its field than the other groups — the right trade,
+            since a control overlapping an input is the louder error. */}
+        <div className="-mt-2.5 flex flex-wrap items-center justify-between gap-3">
           <Label htmlFor={draft.mode === "hourly" ? "payout-rate" : "payout-fixed"}>Amount</Label>
           <Tabs value={draft.mode} onValueChange={(value) => update("mode", value as AmountMode)}>
             <TabsList>

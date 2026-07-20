@@ -1,7 +1,10 @@
 "use client";
 
-import { Pencil } from "lucide-react";
+import * as React from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { Loader2, Pencil } from "lucide-react";
 
+import { PANEL_FOLD } from "@/hooks/use-chat-panel";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,8 +56,22 @@ function FeeRow({ label, value, total }: { label: string; value: string; total?:
   );
 }
 
+/** How long the fake rail call takes before the receipt appears. */
+const SEND_DURATION = 1600;
+
 export function PayoutReviewStep({ flow }: { flow: ReturnType<typeof usePayoutFlow> }) {
   const { draft, profile, currency, totals, send, toDetails, enteredAtReview } = flow;
+  const [sending, setSending] = React.useState(false);
+
+  // No backend, but the pause is the point: sending money should feel like it
+  // takes a moment and should lock the screen while it does, so the button
+  // can't be pressed twice.
+  React.useEffect(() => {
+    if (!sending) return;
+    const timer = setTimeout(send, SEND_DURATION);
+    return () => clearTimeout(timer);
+  }, [sending, send]);
+
   if (!profile) return null;
 
   const method = getMethodOption(draft.method);
@@ -162,20 +179,52 @@ export function PayoutReviewStep({ flow }: { flow: ReturnType<typeof usePayoutFl
         </CardContent>
       </Card>
 
-      {/* The commit bar: the number and the button that sends it, side by side. */}
-      <Card className={cardCls}>
-        <CardContent className="flex flex-wrap items-center justify-between gap-4">
+      {/* The commit bar sticks 64px off the bottom so the amount and the button
+          that sends it stay together and on screen through a long review —
+          the figure must never be scrolled away from its own confirm.
+          Mirrors the invoice footer's construction (invoice-actions.tsx),
+          including the opaque backdrop: it spans the card *and* its bottom
+          offset, so scrolling content can't show through at the rounded
+          corners or in the gap beneath. */}
+      <div className="sticky bottom-16 z-10 -mb-4 pb-4 md:-mb-8">
+        {/* The backdrop must span the card *and* the 64px the bar floats above,
+            or rows scrolling past reappear in that gap. -bottom-16 stretches
+            it to the viewport edge; inset-x-0 covers the rounded corners. */}
+        <div className="pointer-events-none absolute -bottom-16 top-0 inset-x-0 bg-background" />
+        <div className="relative flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-6 shadow-sm">
           <div className="flex flex-col gap-1">
             <span className={eyebrowCls}>You pay</span>
             <span className="text-2xl font-semibold tracking-tight tabular-nums">
               {formatCurrency(totals.total, "USD")}
             </span>
           </div>
-          <Button size="lg" onClick={send}>
+          <Button size="lg" onClick={() => setSending(true)} disabled={sending}>
             Send {formatCurrency(totals.total, "USD")}
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Blocks the whole viewport while the payout is in flight: the one
+          moment where a stray second click could mean a second transfer.
+          Fixed rather than absolute so it also covers the sidebar and header —
+          nothing on screen should look actionable mid-send. */}
+      <AnimatePresence>
+        {sending && (
+          <motion.div
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-foreground/60 backdrop-blur-[2px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={PANEL_FOLD}
+            role="alertdialog"
+            aria-busy="true"
+            aria-label="Initiating payout"
+          >
+            <Loader2 className="size-6 animate-spin text-background" />
+            <p className="text-sm font-medium text-background">Initiating payout…</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
