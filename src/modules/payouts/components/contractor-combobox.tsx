@@ -58,13 +58,18 @@ export function ContractorCombobox({
         <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
       </PopoverTrigger>
 
-      {/* Width tracks the trigger so the list lines up with the field it fills. */}
-      <PopoverContent align="start" className="w-(--radix-popover-trigger-width)">
-        <Command>
-          <div className="border-b p-1.5">
+      {/* Width tracks the trigger so the list lines up with the field it fills,
+          and the radius matches it so the popover reads as an extension of the
+          field rather than a second, separate surface. Command brings its own
+          rounded-4xl/padding, so both are overridden here to a single seam. */}
+      <PopoverContent align="start" sideOffset={6} className="w-(--radix-popover-trigger-width) rounded-xl p-0">
+        <Command className="rounded-xl p-0">
+          {/* The search field echoes the trigger's radius (xl), not the
+              palette's pill — matching the surface it drops out of. */}
+          <div className="p-1.5 [&_[data-slot=input-group]]:rounded-lg">
             <CommandInput placeholder="Search contractors…" />
           </div>
-          <CommandList>
+          <CommandList className="px-1.5 pb-1.5">
             <CommandEmpty className="text-muted-foreground">No contractors found.</CommandEmpty>
             {contractors.map((contractor) => (
               <CommandItem
@@ -73,6 +78,10 @@ export function ContractorCombobox({
                 // are as likely a starting point as a name.
                 value={`${contractor.name} ${contractor.title} ${contractor.country}`}
                 data-checked={contractor.name === value}
+                // Rows sit one step inside the container's radius (xl → lg),
+                // the usual nested-corner relationship; the palette's 2xl is
+                // tuned for its own 4xl shell and reads bulbous at this size.
+                className="rounded-lg"
                 onSelect={() => {
                   onSelect(contractor.name);
                   setOpen(false);
