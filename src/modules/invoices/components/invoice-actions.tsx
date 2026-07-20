@@ -12,9 +12,15 @@ import type { InvoiceStatus } from "@/modules/invoices/data";
  * Sticks to the bottom while scrolling, then settles into place at the end of
  * the page. The sticky wrapper carries an opaque background that fills the gap
  * below the card so page content never shows through as it scrolls under it.
+ *
+ * Only unsettled invoices offer a payout path (pending → pay, failed → retry),
+ * and it carries the invoice id so the flow opens on review with the billed
+ * figure already loaded. `processing` money is already moving and `paid` money
+ * has landed — neither should offer a second send.
  */
-export function InvoiceActions({ status, usdLabel }: { status: InvoiceStatus; usdLabel: string }) {
+export function InvoiceActions({ id, status, usdLabel }: { id: string; status: InvoiceStatus; usdLabel: string }) {
   const isPaid = status === "paid";
+  const payoutHref = `/payouts?invoice=${encodeURIComponent(id)}`;
 
   return (
     <div className="sticky bottom-0 z-10 -mb-4 pb-8 md:-mb-8">
@@ -35,18 +41,22 @@ export function InvoiceActions({ status, usdLabel }: { status: InvoiceStatus; us
           </Button>
         ) : status === "failed" ? (
           <Button asChild>
-            <Link href="/payouts">
+            <Link href={payoutHref}>
               <RotateCcw data-icon="inline-start" />
               Retry payout
             </Link>
           </Button>
-        ) : (
+        ) : status === "pending" ? (
           <Button asChild>
-            <Link href="/payouts">
+            <Link href={payoutHref}>
               Continue to pay
               <ArrowRight data-icon="inline-end" />
             </Link>
           </Button>
+        ) : (
+          // processing: the transfer is already in flight — the page's own
+          // timeline is the status, and a CTA here would invite a double-send.
+          <span className="text-sm text-muted-foreground">Payout in progress</span>
         )}
       </div>
     </div>

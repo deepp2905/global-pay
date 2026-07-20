@@ -136,6 +136,25 @@ Knowledge transfer for all foundation decisions: what was chosen, what was consi
 
 ---
 
+## D12. Paying an existing invoice: the invoice amount is authoritative
+
+**Decision:** An unsettled invoice can be paid directly (`/payouts?invoice=<id>`), which opens the flow **on the review step** with the billed figure loaded. The invoice's own amount and currency are authoritative: you pay what was billed, and the USD leaving the wallet is derived by dividing out the rate. A free-form payout runs the opposite direction — priced in USD, converted outward.
+
+**Rejected:** **Converting the invoice to USD and treating it like any other payout.** One code path, but the number you review would not be the number on the invoice. For a payments product that is a lie, and it is exactly the inconsistency the reference mockups showed (₹12,000 on one screen, $1,200 on the next).
+
+**Consequences:**
+
+- `getTotals()` handles both directions and always returns `subtotal` in USD and `localAmount` in the contractor's currency, so no caller needs to know which way the conversion ran.
+- The review card leads with the invoice's currency when settling an invoice, and with USD otherwise.
+- Editing an amount **detaches** the draft from its source invoice — otherwise the frozen figure would silently override what the user typed. Changing method or note keeps the link; switching contractor also detaches, since paying someone else cannot settle that invoice.
+- Entering at review means there is no earlier step to return to, so the back link names the invoice and editing gets an explicit control on the review card. The "Step 1 of 2" caption is hidden — it would be a lie when there was never a step 1.
+
+**Routing (deliberately *not* status-based redirects):** Every table row still opens the invoice detail page; status only decides what its footer offers — `pending` → "Continue to pay", `failed` → "Retry payout", `processing` → a flat "Payout in progress" (money already moving; a CTA would invite a double-send), `paid` → "Download invoice". Pending and failed rows also get an inline Pay/Retry button for the shortcut. Redirecting rows straight into payout screens was rejected: it would strand `/invoices/[id]` as dead code, and the detail page carries what the payout flow does not (settlement reference, issue and due dates, audit trail) — an invoice is a document, a payout is a transaction.
+
+**FX reconciliation:** The rate table was re-fitted to the seed ledger's own `amount`/`usdValue` pairs, so an invoice-sourced payout derives the same USD figure the list and dashboard already show. INR was the one material conflict — the mockups implied 95.34, the ledger implies 83.33 (a 14% gap). The ledger wins, since it is what every other surface displays.
+
+---
+
 ## Build order (next 3 hours)
 
 1. Scaffold + deploy to Vercel

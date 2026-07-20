@@ -1,5 +1,7 @@
 "use client";
 
+import { Pencil } from "lucide-react";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,7 +54,7 @@ function FeeRow({ label, value, total }: { label: string; value: string; total?:
 }
 
 export function PayoutReviewStep({ flow }: { flow: ReturnType<typeof usePayoutFlow> }) {
-  const { draft, profile, currency, totals, send } = flow;
+  const { draft, profile, currency, totals, send, toDetails, enteredAtReview } = flow;
   if (!profile) return null;
 
   const method = getMethodOption(draft.method);
@@ -80,16 +82,24 @@ export function PayoutReviewStep({ flow }: { flow: ReturnType<typeof usePayoutFl
             </div>
           </div>
           <Separator />
+          {/* An invoice is billed in its own currency, so that figure leads and
+              the USD cost is derived. A free-form payout is priced in USD and
+              converts outward — same card, opposite emphasis. */}
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div className="flex flex-col gap-1">
               <span className={eyebrowCls}>Payout amount</span>
               <span className="text-3xl font-semibold tracking-tight tabular-nums">
-                {formatCurrency(totals.subtotal, "USD")}
+                {draft.source
+                  ? formatCurrency(totals.localAmount, currency)
+                  : formatCurrency(totals.subtotal, "USD")}
               </span>
             </div>
             {currency !== "USD" && (
               <span className="text-sm text-muted-foreground tabular-nums">
-                ≈ {formatCurrency(totals.localAmount, currency)}
+                ≈{" "}
+                {draft.source
+                  ? formatCurrency(totals.subtotal, "USD")
+                  : formatCurrency(totals.localAmount, currency)}
               </span>
             )}
           </div>
@@ -97,11 +107,24 @@ export function PayoutReviewStep({ flow }: { flow: ReturnType<typeof usePayoutFl
       </Card>
 
       <Card className={cardCls}>
-        <CardHeader>
+        <CardHeader className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="text-base">Payment details</CardTitle>
+          {/* Entering at review skips the details step, so editing needs its own
+              way in — the back link is spent naming the invoice. */}
+          {enteredAtReview && (
+            <Button variant="ghost" size="sm" onClick={toDetails}>
+              <Pencil data-icon="inline-start" />
+              Edit
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           <dl className="flex flex-col">
+            {draft.source && (
+              <DetailRow label="Settles invoice">
+                <span className="tabular-nums">{draft.source.invoiceId}</span>
+              </DetailRow>
+            )}
             <DetailRow label="Method">
               <MethodLabel method={draft.method} />
             </DetailRow>

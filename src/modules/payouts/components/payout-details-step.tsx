@@ -6,10 +6,10 @@ import { AlertCircle, CircleDollarSign, Landmark, Wallet, X } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { getContractorProfiles, type PaymentMethod } from "@/modules/invoices/data";
+import { ContractorCombobox } from "@/modules/payouts/components/contractor-combobox";
+import type { PaymentMethod } from "@/modules/invoices/data";
 import { METHOD_OPTIONS, VALIDATION_MESSAGES, type AmountMode } from "@/modules/payouts/data";
 import type { usePayoutFlow } from "@/modules/payouts/use-payout-flow";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -31,7 +31,6 @@ function formatLocal(amount: number, currency: string) {
 
 export function PayoutDetailsStep({ flow }: { flow: ReturnType<typeof usePayoutFlow> }) {
   const { draft, profile, currency, totals, error, update, selectContractor, toReview } = flow;
-  const contractors = React.useMemo(() => getContractorProfiles(), []);
 
   return (
     <form
@@ -43,24 +42,7 @@ export function PayoutDetailsStep({ flow }: { flow: ReturnType<typeof usePayoutF
     >
       <div className="flex flex-col gap-3">
         <Label htmlFor="payout-contractor">Select Contractor</Label>
-        <Select value={draft.contractor} onValueChange={selectContractor}>
-          {/* h-auto: the trigger holds a two-line identity block, not a single value. */}
-          <SelectTrigger id="payout-contractor" className="h-auto w-full py-3">
-            <SelectValue placeholder="Choose who you're paying" />
-          </SelectTrigger>
-          <SelectContent>
-            {contractors.map((contractor) => (
-              <SelectItem key={contractor.name} value={contractor.name}>
-                <span className="flex flex-col gap-0.5 text-left">
-                  <span className="font-medium">{contractor.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {contractor.title} · {contractor.country}
-                  </span>
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <ContractorCombobox id="payout-contractor" value={draft.contractor} onSelect={selectContractor} />
       </div>
 
       <div className="flex flex-col gap-3">

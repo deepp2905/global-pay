@@ -174,7 +174,7 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailProps) 
         </CardContent>
       </Card>
 
-      <InvoiceActions status={invoice.status} usdLabel={formatCurrency(invoice.usdValue, "USD")} />
+      <InvoiceActions id={invoice.id} status={invoice.status} usdLabel={formatCurrency(invoice.usdValue, "USD")} />
     </div>
   );
 }

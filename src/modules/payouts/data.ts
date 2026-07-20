@@ -8,15 +8,23 @@
 
 import type { PaymentMethod } from "@/modules/invoices/data";
 
-/** Frozen mid-market rates, USD → local. The flow prices in USD and converts. */
+/**
+ * Frozen mid-market rates, USD → local. The flow prices in USD and converts.
+ *
+ * These agree with the ledger's own `amount`/`usdValue` pairs (within rounding)
+ * so an invoice-sourced payout derives the same USD figure the invoice list and
+ * dashboard already show. The reference mockups used 95.34 for INR, which
+ * contradicted the seed data by 14% — the ledger wins, since it's what every
+ * other surface displays.
+ */
 export const FX_RATES: Record<string, number> = {
   USD: 1,
-  INR: 95.34,
+  INR: 83.33,
   EUR: 0.92,
   GBP: 0.79,
   SGD: 1.34,
   AED: 3.67,
-  JPY: 141.2,
+  JPY: 144.19,
   MXN: 18.55,
   BRL: 5.4,
   VND: 25400,
@@ -66,6 +74,14 @@ export interface PayoutDraft {
   fixed: string;
   method: PaymentMethod;
   note: string;
+  /**
+   * Set when the payout settles an existing invoice. The invoice's own amount
+   * is then authoritative and denominated in *its* currency — you pay what was
+   * billed — so the USD leaving the wallet is derived by dividing out the rate
+   * rather than multiplying into it. A free-form payout inverts this: USD in,
+   * local out. Absent for free-form payouts.
+   */
+  source?: { invoiceId: string; amount: number; currency: string };
 }
 
 export const EMPTY_DRAFT: PayoutDraft = {
@@ -107,10 +123,31 @@ export interface PayoutTotals {
  * receives the full amount entered — the alternative (netting fees out of the
  * contractor's pay) is a different product decision and would need saying out
  * loud in the UI.
+ *
+ * Two directions, one result shape: a free-form payout is priced in USD and
+ * converted outward; an invoice-sourced payout is fixed in the invoice's
+ * currency and converted back (you pay what was billed). `subtotal` is always
+ * USD and `localAmount` always the contractor's currency, so callers never
+ * need to know which way the conversion ran.
  */
 export function getTotals(draft: PayoutDraft, currency: string): PayoutTotals {
-  const subtotal = draft.mode === "hourly" ? parseAmount(draft.rate) * parseAmount(draft.hours) : parseAmount(draft.fixed);
   const methodFee = getMethodOption(draft.method).fee;
+
+  if (draft.source) {
+    const rate = FX_RATES[draft.source.currency] ?? 1;
+    const subtotal = draft.source.amount / rate;
+    return {
+      subtotal,
+      platformFee: PLATFORM_FEE,
+      methodFee,
+      total: subtotal + PLATFORM_FEE + methodFee,
+      localAmount: draft.source.amount,
+      currency: draft.source.currency,
+      rate,
+    };
+  }
+
+  const subtotal = draft.mode === "hourly" ? parseAmount(draft.rate) * parseAmount(draft.hours) : parseAmount(draft.fixed);
   const rate = FX_RATES[currency] ?? 1;
 
   return {
