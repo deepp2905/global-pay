@@ -1,4 +1,4 @@
-# Decision Log — Instalily Case Study Foundation
+# Decision Log — Global Pay Workspace Foundation
 
 Knowledge transfer for all foundation decisions: what was chosen, what was considered and rejected, and why. Doubles as source material for the walkthrough's "three specific decisions" section.
 

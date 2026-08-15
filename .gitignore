@@ -42,3 +42,6 @@ next-env.d.ts
 
 # interview prep notes (local only)
 /prep
+
+# case-study brief (local only)
+/BRIEF.md

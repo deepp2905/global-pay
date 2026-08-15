@@ -1,6 +1,6 @@
 # Global Pay — Enterprise Workspace Foundation
 
-A B2B workspace foundation for a fictional cross-border contractor-payments product, built as the InstaLILY design-engineer case study. The deliverable is the **shell, navigation, and design system** that product modules live inside — three example modules (Dashboard, Invoices, Invoice detail) show it in use.
+A B2B workspace foundation for a fictional cross-border contractor-payments product. The deliverable is the **shell, navigation, and design system** that product modules live inside — three example modules (Dashboard, Invoices, Invoice detail) show it in use.
 
 **Stack:** Next.js 16 (App Router) · React 19 · Tailwind CSS v4 · shadcn/ui (radix-luma) · Motion
 
@@ -150,4 +150,4 @@ Deployed on Vercel — every push to `master` goes live.
 
 ---
 
-_Case-study companion docs: `BRIEF.md` (original assignment) and `DECISIONS.md` (every architectural decision with rejected alternatives)._
+_See `DECISIONS.md` for every architectural decision with rejected alternatives._
