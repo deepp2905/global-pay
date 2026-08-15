@@ -121,8 +121,6 @@ export function usePayoutFlow(invoiceId?: string) {
     totals,
     enteredAtReview,
     error: submitted ? error : null,
-    /** True when the draft is complete, regardless of whether errors are shown yet. */
-    valid: error === null,
     update,
     selectContractor,
     toReview,
